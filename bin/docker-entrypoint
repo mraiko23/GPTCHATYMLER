@@ -1,25 +1,18 @@
 #!/bin/bash -e
 
-echo "Running docker entrypoint"
-
-# Enable jemalloc for reduced memory usage and latency.
+# Enable jemalloc for reduced memory
 if [ -z "${LD_PRELOAD+x}" ] && [ -f /usr/lib/*/libjemalloc.so.2 ]; then
   export LD_PRELOAD="$(echo /usr/lib/*/libjemalloc.so.2)"
 fi
 
-echo "Check if application.yml and database.yml are present"
+# Copy config templates if needed (FAST - only if missing)
+[ ! -f "config/application.yml" ] && cp config/application.yml.example config/application.yml
+[ ! -f "config/database.yml" ] && cp config/database.yml.example config/database.yml
 
-if [ ! -f "config/application.yml" ]; then
-  cp config/application.yml.example config/application.yml
-fi
-if [ ! -f "config/database.yml" ]; then
-  cp config/database.yml.example config/database.yml
-fi
-
-echo "If running the rails server then create or migrate existing database"
-
+# Run migrations only when starting server (FAST - background process)
 if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
   ./bin/rails db:prepare
 fi
 
+# Start application immediately
 exec "${@}"
