@@ -33,6 +33,7 @@ WORKDIR /rails
 # Copy installed dependencies from previous stage
 COPY --from=deps /usr/local/bundle /usr/local/bundle
 COPY --from=deps /rails/node_modules /rails/node_modules
+COPY --from=deps /rails/Gemfile* ./
 
 # Copy only what's needed for asset compilation
 COPY --chown=ruby:ruby app/assets ./app/assets
@@ -43,6 +44,7 @@ COPY --chown=ruby:ruby Rakefile ./
 COPY --chown=ruby:ruby package.json ./
 COPY --chown=ruby:ruby tailwind.config.js ./
 COPY --chown=ruby:ruby postcss.config.js ./
+COPY --chown=ruby:ruby lib ./lib
 
 # Precompile assets with dummy key (FAST - only CSS/JS)
 RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
