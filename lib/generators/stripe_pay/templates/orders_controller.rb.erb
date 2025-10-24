@@ -1,0 +1,159 @@
+class OrdersController < ApplicationController
+  before_action :set_order, only: [:show, :pay, :success, :failure, :destroy]
+  skip_before_action :verify_authenticity_token, only: [:webhook], raise: false
+<% if @auth -%>
+  before_action :authenticate_user!, except: [:webhook]
+<% end -%>
+
+  def index
+<% if @auth -%>
+    @orders = current_user.orders.order(created_at: :desc).page(params[:page])
+<% else -%>
+    # TODO: Replace this with proper business logic to avoid security issues
+    # Consider implementing user authentication and authorization to ensure users
+    # can only view their own orders, not all orders in the system.
+    # Example: @orders = current_user.orders.order(created_at: :desc).page(params[:page])
+    @orders = Order.order(created_at: :desc).page(params[:page])
+<% end -%>
+  end
+
+<% if options[:for_test] -%>
+  def new
+<% if @auth -%>
+    @order = current_user.orders.new
+<% else -%>
+    @order = Order.new
+<% end -%>
+  end
+
+  def create
+<% if @auth -%>
+    @order = current_user.orders.new(order_params)
+<% else -%>
+    @order = Order.new(order_params)
+<% end -%>
+
+    if @order.save
+      # Redirect to order show page instead of directly to payment
+      redirect_to @order, notice: 'Order was successfully created.'
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+<% end -%>
+
+  def show
+    # Show order details and payment button
+    # Payment will be initiated from this page
+  end
+
+  def destroy
+    @order.mark_as_canceled!
+    redirect_to orders_path, notice: 'Order was successfully canceled.'
+  end
+
+  def pay
+    # Initialize payment for existing order
+    stripe_service = StripePaymentService.new(@order, request)
+    result = stripe_service.call
+
+    if result[:success]
+      @checkout_session = result[:checkout_session]
+      # Redirect to Stripe Checkout with 303 status for Turbo compatibility
+      redirect_to @checkout_session.url, allow_other_host: true, status: :see_other
+    else
+      flash[:alert] = "Payment initialization failed: #{result[:error]}"
+      redirect_to @order
+    end
+  end
+
+  def success
+    # In development mode, check and update order status from Stripe
+    # since webhooks might not be properly configured
+    if Rails.env.development? && @order.processing?
+      update_order_status_from_stripe
+    end
+
+    # Allow access regardless of status for display purposes
+    # The view will show appropriate content based on order status
+  end
+
+  def failure
+    # Allow access regardless of status for display purposes
+    # The view will show appropriate content based on order status
+  end
+
+  # Webhook endpoint for Stripe
+  def webhook
+    payload = request.body.read
+    sig_header = request.env['HTTP_STRIPE_SIGNATURE']
+    endpoint_secret = Rails.application.config.stripe[:webhook_secret]
+
+    begin
+      event = Stripe::Webhook.construct_event(payload, sig_header, endpoint_secret)
+      StripePaymentService.process_webhook_event(event)
+      render json: { status: 'success' }
+    rescue JSON::ParserError => e
+      render json: { error: 'Invalid payload' }, status: 400
+    rescue Stripe::SignatureVerificationError => e
+      render json: { error: 'Invalid signature' }, status: 400
+    end
+  end
+
+  private
+
+  def set_order
+<% if @auth -%>
+    @order = current_user.orders.find(params[:id])
+<% else -%>
+    @order = Order.find(params[:id])
+<% end -%>
+  end
+
+<% if options[:for_test] -%>
+  def order_params
+<% if @auth -%>
+    params.require(:order).permit(:product_name, :amount, :currency)
+<% else -%>
+    params.require(:order).permit(:customer_name, :customer_email, :product_name, :amount, :currency)
+<% end -%>
+  end
+
+<% end -%>
+
+  # Update order status by checking Stripe directly (for development)
+  def update_order_status_from_stripe
+    return unless @order&.stripe_payment_intent_id&.present?
+
+    begin
+      # Check if it's a checkout session ID
+      if @order.stripe_payment_intent_id.start_with?('cs_')
+        session = Stripe::Checkout::Session.retrieve(@order.stripe_payment_intent_id)
+
+        case session.payment_status
+        when 'paid'
+          @order.mark_as_paid!
+          Rails.logger.info "Development: Updated order #{@order.id} to paid status"
+        when 'unpaid'
+          Rails.logger.info "Development: Order #{@order.id} still unpaid in Stripe"
+        end
+      else
+        # If it's a payment intent ID
+        payment_intent = Stripe::PaymentIntent.retrieve(@order.stripe_payment_intent_id)
+
+        case payment_intent.status
+        when 'succeeded'
+          @order.mark_as_paid!
+          Rails.logger.info "Development: Updated order #{@order.id} to paid status"
+        when 'requires_payment_method', 'requires_confirmation'
+          Rails.logger.info "Development: Order #{@order.id} still requires payment"
+        end
+      end
+    rescue Stripe::StripeError => e
+      Rails.logger.error "Development: Failed to check Stripe status for order #{@order.id}: #{e.message}"
+    rescue => e
+      Rails.logger.error "Development: Error updating order status: #{e.message}"
+    end
+  end
+end

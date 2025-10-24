@@ -1,0 +1,119 @@
+<div class="h-screen flex flex-col bg-surface">
+  <!-- Header -->
+  <header class="bg-primary text-white p-4 shadow-sm">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-8 h-8 bg-primary-light rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-semibold">AI Assistant</h1>
+          <p class="text-sm text-primary-light">Онлайн</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <%= link_to new_chat_path, class: "btn-sm bg-primary-light/20 text-white hover:bg-primary-light/30 rounded-full p-2" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+        <% end %>
+      </div>
+    </div>
+  </header>
+
+  <!-- Chat List -->
+  <main class="flex-1 overflow-y-auto bg-surface">
+    <% if @chats.any? %>
+      <div class="divide-y divide-border">
+        <% @chats.each do |chat| %>
+          <%= link_to chat_path(chat), class: "block hover:bg-surface-elevated transition-colors" do %>
+            <div class="p-4 flex items-center space-x-3">
+              <!-- Chat Avatar -->
+              <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              
+              <!-- Chat Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-semibold text-text-primary truncate"><%= chat.title %></h3>
+                  <span class="text-xs text-text-muted ml-2">
+                    <%= time_ago_in_words(chat.updated_at) %> назад
+                  </span>
+                </div>
+                
+                <% if chat.last_message %>
+                  <p class="text-sm text-text-secondary truncate mt-1">
+                    <% if chat.last_message.user_message? %>
+                      <span class="text-text-muted">Вы:</span>
+                    <% else %>
+                      <span class="text-primary">AI:</span>
+                    <% end %>
+                    <%= truncate(chat.last_message.content, length: 50) %>
+                  </p>
+                <% else %>
+                  <p class="text-sm text-text-muted mt-1">Новый чат</p>
+                <% end %>
+                
+                <!-- Message Count -->
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-xs text-text-muted">
+                    <%= chat.message_count %> 
+                    <%= case chat.message_count % 10
+                        when 1
+                          chat.message_count % 100 == 11 ? 'сообщений' : 'сообщение'
+                        when 2, 3, 4
+                          chat.message_count % 100 >= 12 && chat.message_count % 100 <= 14 ? 'сообщений' : 'сообщения'
+                        else
+                          'сообщений'
+                        end %>
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Arrow -->
+              <svg class="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <!-- Empty State -->
+      <div class="flex flex-col items-center justify-center h-full p-8 text-center">
+        <div class="w-20 h-20 bg-surface-elevated rounded-full flex items-center justify-center mb-4">
+          <svg class="w-10 h-10 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-text-primary mb-2">Добро пожаловать!</h2>
+        <p class="text-text-secondary mb-6 max-w-sm">
+          Начните новый чат с AI-ассистентом. Я могу помочь с ответами на вопросы, поиском информации и анализом файлов.
+        </p>
+        <%= link_to new_chat_path, class: "btn-primary" do %>
+          Создать новый чат
+        <% end %>
+      </div>
+    <% end %>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <footer class="bg-surface border-t border-border p-4">
+    <div class="flex items-center justify-center space-x-4">
+      <span class="badge bg-secondary/20 text-primary text-xs px-2 py-1 rounded-full">
+        🤖 Бесплатный AI
+      </span>
+      <span class="badge bg-secondary/20 text-primary text-xs px-2 py-1 rounded-full">
+        🔍 Поиск в интернете
+      </span>
+      <span class="badge bg-secondary/20 text-primary text-xs px-2 py-1 rounded-full">
+        📎 Анализ файлов
+      </span>
+    </div>
+  </footer>
+</div>

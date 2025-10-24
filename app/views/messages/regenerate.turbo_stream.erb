@@ -1,0 +1,20 @@
+<%# Remove the old assistant message and any messages after it %>
+<% @deleted_message_ids.each do |message_id| %>
+  <turbo-stream action="remove" target="message-<%= message_id %>">
+  </turbo-stream>
+<% end %>
+
+<%# Show notification that regeneration is in progress %>
+<turbo-stream action="append" target="messages">
+  <template>
+    <div id="regenerating-notice" class="flex justify-center my-2">
+      <div class="px-4 py-2 bg-surface border border-border rounded-xl text-sm text-text-secondary">
+        <svg class="inline-block w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Перегенерирую ответ...
+      </div>
+    </div>
+  </template>
+</turbo-stream>

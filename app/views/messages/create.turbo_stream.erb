@@ -1,0 +1,10 @@
+<%# Append the new user message to the messages container %>
+<turbo-stream action="append" target="messages">
+  <template>
+    <div class="px-4 py-1">
+      <%= render partial: 'messages/message', locals: { message: @message } %>
+    </div>
+  </template>
+</turbo-stream>
+
+

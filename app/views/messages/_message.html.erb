@@ -1,0 +1,82 @@
+<div id="message-<%= message.id %>" class="flex <%= message.role == 'user' ? 'justify-end' : 'justify-start' %>">
+  <div class="<%= message.role == 'user' ? 'message-bubble-user' : 'message-bubble-assistant' %> shadow-sm" 
+       data-controller="message-actions"
+       data-message-actions-message-id-value="<%= message.id %>"
+       data-message-actions-chat-id-value="<%= message.chat_id %>">
+    
+    <% if message.files.attached? %>
+      <div class="mb-3 space-y-2">
+        <% message.files.each do |file| %>
+          <% if file.content_type.start_with?('image/') %>
+            <!-- Изображение -->
+            <div class="rounded-lg overflow-hidden">
+              <%= image_tag file, class: "max-w-full h-auto rounded-lg", style: "max-height: 300px;" %>
+            </div>
+          <% elsif file.content_type.start_with?('text/') || ['application/pdf', 'application/json'].include?(file.content_type) %>
+            <!-- Текстовый файл или документ -->
+            <div class="flex items-center space-x-2 p-2 <%= message.role == 'user' ? 'bg-white/10' : 'bg-surface' %> rounded-lg">
+              <div class="flex-shrink-0">
+                <svg class="w-8 h-8 <%= message.role == 'user' ? 'text-white/70' : 'text-primary' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium <%= message.role == 'user' ? 'text-white' : 'text-text-primary' %> truncate">
+                  <%= file.filename %>
+                </p>
+                <p class="text-xs <%= message.role == 'user' ? 'text-white/60' : 'text-text-muted' %>">
+                  <%= number_to_human_size(file.byte_size) %>
+                </p>
+              </div>
+              <%= link_to rails_blob_path(file, disposition: "attachment"), 
+                    class: "flex-shrink-0 #{message.role == 'user' ? 'text-white/70 hover:text-white' : 'text-text-secondary hover:text-text-primary'} transition-colors",
+                    download: file.filename do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+              <% end %>
+            </div>
+            
+            <!-- Превью текста для .txt файлов -->
+            <% if file.content_type == 'text/plain' && file.byte_size < 10000 %>
+              <div class="mt-2 p-3 <%= message.role == 'user' ? 'bg-white/5' : 'bg-surface' %> rounded-lg">
+                <pre class="text-xs <%= message.role == 'user' ? 'text-white/80' : 'text-text-secondary' %> whitespace-pre-wrap overflow-x-auto"><%= truncate(file.download, length: 500) %></pre>
+              </div>
+            <% end %>
+          <% else %>
+            <!-- Другие типы файлов -->
+            <div class="flex items-center space-x-2 p-2 <%= message.role == 'user' ? 'bg-white/10' : 'bg-surface' %> rounded-lg">
+              <div class="flex-shrink-0">
+                <svg class="w-8 h-8 <%= message.role == 'user' ? 'text-white/70' : 'text-primary' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium <%= message.role == 'user' ? 'text-white' : 'text-text-primary' %> truncate">
+                  <%= file.filename %>
+                </p>
+                <p class="text-xs <%= message.role == 'user' ? 'text-white/60' : 'text-text-muted' %>">
+                  <%= number_to_human_size(file.byte_size) %>
+                </p>
+              </div>
+              <%= link_to rails_blob_path(file, disposition: "attachment"), 
+                    class: "flex-shrink-0 #{message.role == 'user' ? 'text-white/70 hover:text-white' : 'text-text-secondary hover:text-text-primary'} transition-colors",
+                    download: file.filename do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <% if message.content.present? %>
+      <div class="message-content" data-message-actions-target="content"><%= simple_format(message.content, {}, wrapper_tag: "div") %></div>
+    <% end %>
+    <div class="text-xs mt-2 <%= message.role == 'user' ? 'text-white/70' : 'text-text-muted' %>">
+      <%= message.created_at.strftime('%H:%M') %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,1267 @@
+@tailwind base;
+@tailwind components;
+
+/* Design System Components - Place between components and utilities for proper cascade */
+@layer components {
+
+  /*
+   * Design System Variables - Semantic naming to guide AI color selection
+   *
+   * Usage Guidelines:
+   * - Text colors: Use text-* series for high contrast and readability
+   * - Surface colors: Use surface-* series for backgrounds
+   * - Brand colors: Use primary/secondary for brand elements
+   * - Status colors: Use success/warning/danger/info for feedback
+   *
+   * ⚠️ Avoid direct use of neutral, prefer semantic variables
+   */
+  :root {
+    --color-primary: 207 90% 54%;       /* Telegram blue #0088cc */
+    --color-primary-light: 210 100% 66%;   /* Lighter Telegram blue */
+    --color-primary-dark: 207 100% 45%;
+
+    --color-secondary: 198 100% 85%;    /* Light blue accent */
+    --color-secondary-light: 201 100% 92%; /* Very light blue */
+    --color-secondary-dark: 195 100% 75%;
+
+    /* Text colors - high contrast for readability */
+    --color-text-primary: 0 0% 15%;    /* Main headings, important text */
+    --color-text-secondary: 0 0% 35%;  /* Body text, descriptions */
+    --color-text-muted: 0 0% 64%;      /* Captions, helper text */
+
+    /* Surface colors - for backgrounds and borders */
+    --color-surface: 0 0% 100%;        /* Main background (white) */
+    --color-surface-elevated: 210 20% 98%; /* Cards with subtle blue tint */
+    --color-border: 210 20% 93%;       /* Borders with blue undertone */
+
+    /*  Neutral color - use only in special cases, avoid for text */
+    --color-neutral: 0 0% 64%;
+
+    --color-success: 142 76% 36%;
+    --color-warning: 38 92% 50%;
+    --color-danger: 0 84% 60%;
+    --color-info: 188 94% 42%;
+
+    --color-success-bg: 138 76% 97%;
+    --color-warning-bg: 48 100% 96%;
+    --color-danger-bg: 0 93% 97%;
+    --color-info-bg: 204 100% 97%;
+
+    --font-family-sans: 'Inter', 'Helvetica Neue', 'Arial', sans-serif;
+    --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+    --border-radius-sm: 0.375rem;
+    --border-radius: 0.5rem;
+    --border-radius-md: 0.75rem;
+    --border-radius-lg: 1rem;
+    --border-radius-xl: 1.5rem;
+
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    
+    /* Mobile-first design tokens for Telegram Web App */
+    --touch-target-min: 44px;          /* iOS HIG minimum touch target */
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+    
+    /* Typography scale optimized for mobile readability */
+    --text-xs: 0.75rem;   /* 12px */
+    --text-sm: 0.875rem;  /* 14px */
+    --text-base: 1rem;    /* 16px - optimal for mobile reading */
+    --text-lg: 1.125rem;  /* 18px */
+    --text-xl: 1.25rem;   /* 20px */
+    
+    /* Mobile spacing system */
+    --space-xs: 0.25rem;  /* 4px */
+    --space-sm: 0.5rem;   /* 8px */
+    --space-md: 1rem;     /* 16px */
+    --space-lg: 1.5rem;   /* 24px */
+    --space-xl: 2rem;     /* 32px */
+  }
+
+  /*
+   * Dark Mode - Comprehensive optimization for contrast and visual effects
+   * Follows WCAG AA standards with minimum 4.5:1 text contrast ratio
+   */
+  .dark {
+    /* Brand colors optimization for dark mode - increased brightness */
+    --color-primary: 207 100% 65%;     /* Bright Telegram blue for dark mode */
+    --color-primary-light: 210 100% 75%; /* Light variant */
+    --color-primary-dark: 207 90% 55%; /* Dark variant */
+
+    --color-secondary: 198 100% 75%;    /* Bright light blue */
+    --color-secondary-light: 201 100% 85%;
+    --color-secondary-dark: 195 100% 65%;
+
+    /* Text colors - high contrast for readability */
+    --color-text-primary: 0 0% 95%;    /* Near white, optimal contrast */
+    --color-text-secondary: 0 0% 80%;  /* Secondary text, still clear */
+    --color-text-muted: 0 0% 60%;      /* Muted text, moderate contrast */
+
+    /* Surface colors - layered dark system */
+    --color-surface: 217 32% 9%;       /* Dark blue-tinted background */
+    --color-surface-elevated: 217 25% 14%; /* Card background with blue tint */
+    --color-border: 210 25% 25%;       /* Borders with blue undertone */
+
+    /* Status colors optimization for dark mode - brighter and more saturated */
+    --color-success: 145 80% 50%;      /* Brighter green */
+    --color-warning: 45 95% 60%;       /* Brighter yellow */
+    --color-danger: 0 85% 65%;         /* Brighter red */
+    --color-info: 200 95% 55%;         /* Brighter blue */
+
+    /* Status background colors - semi-transparent for dark mode */
+    --color-success-bg: 145 80% 50% / 0.15; /* Semi-transparent green background */
+    --color-warning-bg: 45 95% 60% / 0.15;  /* Semi-transparent yellow background */
+    --color-danger-bg: 0 85% 65% / 0.15;    /* Semi-transparent red background */
+    --color-info-bg: 200 95% 55% / 0.15;    /* Semi-transparent blue background */
+
+    /* Neutral color adjustment for dark mode */
+    --color-neutral: 0 0% 70%;         /* Brighter neutral for dark backgrounds */
+
+    /* Shadows for dark mode - softer to avoid being too heavy */
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+    --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.7);
+  }
+
+  /* Design System Components */
+  .btn {
+    @apply inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    border-radius: var(--border-radius);
+    font-family: var(--font-family-sans);
+    cursor: pointer;
+    user-select: none;
+    text-decoration: none;
+    border: none;
+    outline: none;
+  }
+
+  /* Button disabled state */
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Button loading state */
+  .btn.loading {
+    cursor: wait;
+    pointer-events: none;
+    position: relative;
+  }
+
+  /* Button focus styles */
+  .btn:focus-visible {
+    outline: 2px solid hsl(var(--color-primary));
+    outline-offset: 2px;
+  }
+
+  /* Button active state */
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .btn-primary {
+    @apply btn px-4 py-2 text-sm text-white;
+    background-color: hsl(var(--color-primary));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background-color: hsl(var(--color-primary-dark));
+    box-shadow: var(--shadow);
+  }
+
+  .btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-primary) / 0.3);
+  }
+
+  .btn-primary:disabled {
+    background-color: hsl(var(--color-primary) / 0.5);
+    color: hsl(0 0% 100% / 0.7);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-secondary {
+    @apply btn px-4 py-2 text-sm text-white;
+    background-color: hsl(var(--color-secondary));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background-color: hsl(var(--color-secondary-dark));
+    box-shadow: var(--shadow);
+  }
+
+  .btn-secondary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-secondary) / 0.3);
+  }
+
+  .btn-secondary:disabled {
+    background-color: hsl(var(--color-secondary) / 0.5);
+    color: hsl(0 0% 100% / 0.7);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-neutral {
+    @apply btn px-4 py-2 text-sm text-white;
+    background-color: hsl(var(--color-neutral));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-neutral:hover:not(:disabled) {
+    background-color: hsl(var(--color-neutral));
+    box-shadow: var(--shadow);
+  }
+
+  .btn-neutral:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-neutral) / 0.3);
+  }
+
+  .btn-neutral:disabled {
+    background-color: hsl(var(--color-neutral) / 0.5);
+    color: hsl(0 0% 100% / 0.7);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-success {
+    @apply btn px-4 py-2 text-sm text-white;
+    background-color: hsl(var(--color-success));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-success:hover:not(:disabled) {
+    opacity: 0.9;
+    box-shadow: var(--shadow);
+  }
+
+  .btn-success:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-success) / 0.3);
+  }
+
+  .btn-success:disabled {
+    background-color: hsl(var(--color-success) / 0.5);
+    color: hsl(0 0% 100% / 0.7);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-warning {
+    @apply btn px-4 py-2 text-sm text-white;
+    background-color: hsl(var(--color-warning));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-warning:hover:not(:disabled) {
+    opacity: 0.9;
+    box-shadow: var(--shadow);
+  }
+
+  .btn-warning:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-warning) / 0.3);
+  }
+
+  .btn-warning:disabled {
+    background-color: hsl(var(--color-warning) / 0.5);
+    color: hsl(0 0% 100% / 0.7);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-danger {
+    @apply btn px-4 py-2 text-sm text-white;
+    background-color: hsl(var(--color-danger));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    opacity: 0.9;
+    box-shadow: var(--shadow);
+  }
+
+  .btn-danger:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-danger) / 0.3);
+  }
+
+  .btn-danger:disabled {
+    background-color: hsl(var(--color-danger) / 0.5);
+    color: hsl(0 0% 100% / 0.7);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-accent {
+    @apply btn px-4 py-2 text-sm text-white;
+    background-color: hsl(var(--color-secondary));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-accent:hover:not(:disabled) {
+    background-color: hsl(var(--color-secondary-dark));
+    box-shadow: var(--shadow);
+  }
+
+  .btn-accent:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-secondary) / 0.3);
+  }
+
+  .btn-accent:disabled {
+    background-color: hsl(var(--color-secondary) / 0.5);
+    color: hsl(0 0% 100% / 0.7);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-ghost {
+    @apply btn px-4 py-2 text-sm text-secondary;
+    background-color: transparent;
+    border: 1px solid hsl(var(--color-border));
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    background-color: hsl(var(--color-surface-elevated));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-ghost:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-text-secondary) / 0.3);
+  }
+
+  .btn-ghost:disabled {
+    border-color: hsl(var(--color-border) / 0.5);
+    opacity: 0.5;
+    background-color: transparent;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .dark .btn-ghost {
+    border-color: hsl(var(--color-border));
+  }
+
+  .dark .btn-ghost:hover:not(:disabled) {
+    background-color: hsl(var(--color-surface-elevated));
+  }
+
+  .dark .btn-ghost:disabled {
+    border-color: hsl(var(--color-border) / 0.3);
+    background-color: transparent;
+  }
+
+  .btn-outline {
+    @apply btn px-4 py-2 text-sm;
+    background-color: transparent;
+    border: 1px solid hsl(var(--color-border));
+    color: hsl(var(--color-text-primary));
+  }
+
+  .btn-outline:hover:not(:disabled) {
+    background-color: hsl(var(--color-surface-elevated));
+    border-color: hsl(var(--color-text-secondary));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-outline:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-text-secondary) / 0.3);
+  }
+
+  .btn-outline:disabled {
+    border-color: hsl(var(--color-border) / 0.5);
+    color: hsl(var(--color-text-muted));
+    background-color: transparent;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .dark .btn-outline {
+    border-color: hsl(var(--color-border));
+    color: hsl(var(--color-text-secondary));
+  }
+
+  .dark .btn-outline:hover:not(:disabled) {
+    background-color: hsl(var(--color-surface-elevated));
+    border-color: hsl(var(--color-text-primary));
+  }
+
+  .btn-outline-primary {
+    @apply btn px-4 py-2 text-sm;
+    background-color: transparent;
+    border: 1px solid hsl(var(--color-primary));
+    color: hsl(var(--color-primary));
+  }
+
+  .btn-outline-primary:hover:not(:disabled) {
+    background-color: hsl(var(--color-primary-light) / 0.1);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-outline-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--color-primary) / 0.3);
+  }
+
+  .btn-outline-primary:disabled {
+    border-color: hsl(var(--color-primary) / 0.3);
+    color: hsl(var(--color-primary) / 0.3);
+    background-color: transparent;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-xs {
+    @apply text-xs px-2 py-1;
+    border-radius: var(--border-radius-sm);
+  }
+
+  .btn-sm {
+    @apply text-sm px-3 py-1.5;
+    border-radius: var(--border-radius);
+  }
+
+  .btn-md {
+    @apply text-sm px-4 py-2;
+    border-radius: var(--border-radius);
+  }
+
+  .btn-lg {
+    @apply text-base px-6 py-3;
+    border-radius: var(--border-radius-lg);
+  }
+
+  .btn-xl {
+    @apply text-lg px-8 py-4;
+    border-radius: var(--border-radius-xl);
+  }
+  .card {
+    @apply px-4 py-4 my-4 overflow-hidden;
+    background-color: hsl(var(--color-surface));
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid hsl(var(--color-surface-elevated));
+  }
+
+  .dark .card {
+    background-color: hsl(var(--color-surface-elevated));
+    border-color: hsl(var(--color-border));
+  }
+
+  .card-elevated {
+    @apply card;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .card-flat {
+    @apply card;
+    box-shadow: none;
+    border: 0;
+    background-color: hsl(var(--color-surface-elevated));
+  }
+
+  .dark .card-flat {
+    background-color: hsl(var(--color-surface));
+  }
+
+  .card-header {
+    @apply px-6 py-4;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    border-bottom: 1px solid hsl(var(--color-surface-elevated));
+    background-color: hsl(var(--color-surface-elevated));
+  }
+
+  .dark .card-header {
+    border-bottom-color: hsl(var(--color-border));
+    background-color: hsl(var(--color-surface));
+  }
+
+  .card-body {
+    @apply px-6 py-4;
+  }
+
+  .card-footer {
+    @apply px-6 py-4;
+    border-top: 1px solid hsl(var(--color-surface-elevated));
+    background-color: hsl(var(--color-surface-elevated));
+  }
+
+  .dark .card-footer {
+    border-top-color: hsl(var(--color-border));
+    background-color: hsl(var(--color-surface));
+  }
+
+  .alert {
+    @apply p-4 text-sm font-medium;
+    border-radius: var(--border-radius-lg);
+    border: 1px solid;
+  }
+
+  .alert a {
+    text-decoration: underline;
+  }
+
+  .alert-success {
+    @apply alert;
+    background-color: hsl(var(--color-success-bg));
+    border-color: hsl(var(--color-success));
+    color: hsl(var(--color-text-primary));
+  }
+
+  .dark .alert-success {
+    background-color: hsl(var(--color-success) / 0.2);
+    border-color: hsl(var(--color-success));
+    color: hsl(var(--color-success));
+  }
+
+  .alert-warning {
+    @apply alert;
+    background-color: hsl(var(--color-warning-bg));
+    border-color: hsl(var(--color-warning));
+    color: hsl(var(--color-text-primary));
+  }
+
+  .dark .alert-warning {
+    background-color: hsl(var(--color-warning) / 0.2);
+    border-color: hsl(var(--color-warning));
+    color: hsl(var(--color-warning));
+  }
+
+  .alert-danger {
+    @apply alert;
+    background-color: hsl(var(--color-danger-bg));
+    border-color: hsl(var(--color-danger));
+    color: hsl(var(--color-text-primary));
+  }
+
+  .dark .alert-danger {
+    background-color: hsl(var(--color-danger) / 0.2);
+    border-color: hsl(var(--color-danger));
+    color: hsl(var(--color-danger));
+  }
+
+  .alert-info {
+    @apply alert;
+    background-color: hsl(var(--color-info-bg));
+    border-color: hsl(var(--color-info));
+    color: hsl(var(--color-text-primary));
+  }
+
+  .dark .alert-info {
+    background-color: hsl(var(--color-info) / 0.2);
+    border-color: hsl(var(--color-info));
+    color: hsl(var(--color-info));
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-medium;
+    border-radius: 9999px; /* full */
+  }
+
+  .badge-primary {
+    @apply badge;
+    background-color: hsl(var(--color-primary-light) / 0.2);
+    color: hsl(var(--color-primary));
+  }
+
+  .dark .badge-primary {
+    background-color: hsl(var(--color-primary) / 0.3);
+    color: hsl(var(--color-primary-light));
+  }
+
+  .badge-secondary {
+    @apply badge;
+    background-color: hsl(var(--color-secondary-light) / 0.2);
+    color: hsl(var(--color-secondary));
+  }
+
+  .dark .badge-secondary {
+    background-color: hsl(var(--color-secondary) / 0.3);
+    color: hsl(var(--color-secondary-light));
+  }
+
+  .badge-success {
+    @apply badge;
+    background-color: hsl(var(--color-success-bg));
+    color: hsl(var(--color-success));
+  }
+
+  .dark .badge-success {
+    background-color: hsl(var(--color-success) / 0.3);
+    color: hsl(var(--color-success));
+  }
+
+  .badge-warning {
+    @apply badge;
+    background-color: hsl(var(--color-warning-bg));
+    color: hsl(var(--color-warning));
+  }
+
+  .dark .badge-warning {
+    background-color: hsl(var(--color-warning) / 0.3);
+    color: hsl(var(--color-warning));
+  }
+
+  .badge-danger {
+    @apply badge;
+    background-color: hsl(var(--color-danger-bg));
+    color: hsl(var(--color-danger));
+  }
+
+  .dark .badge-danger {
+    background-color: hsl(var(--color-danger) / 0.3);
+    color: hsl(var(--color-danger));
+  }
+
+  .badge-neutral {
+    @apply badge;
+    background-color: hsl(var(--color-surface-elevated));
+    color: hsl(var(--color-text-primary));
+  }
+
+  .dark .badge-neutral {
+    background-color: hsl(var(--color-surface-elevated));
+    color: hsl(var(--color-text-secondary));
+  }
+
+  .form-input {
+    @apply w-full px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200;
+    border: 1px solid hsl(var(--color-surface-elevated));
+    border-radius: var(--border-radius);
+    background-color: hsl(var(--color-surface));
+    color: hsl(var(--color-text-primary));
+  }
+
+  .form-input::placeholder {
+    color: hsl(var(--color-neutral));
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: hsl(var(--color-primary));
+    box-shadow: 0 0 0 3px hsl(var(--color-primary) / 0.1);
+  }
+
+  .dark .form-input {
+    border-color: hsl(var(--color-border));
+    background-color: hsl(var(--color-surface-elevated));
+    color: hsl(var(--color-text-primary));
+  }
+
+  .dark .form-input::placeholder {
+    color: hsl(var(--color-text-muted));
+  }
+
+  .form-textarea {
+    @apply form-input resize-y;
+  }
+
+  .form-select {
+    @apply form-input cursor-pointer;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium mb-1;
+    color: hsl(var(--color-text-primary));
+  }
+
+  .dark .form-label {
+    color: hsl(var(--color-text-secondary));
+  }
+
+  .form-error {
+    @apply text-sm mt-1;
+    color: hsl(var(--color-danger));
+  }
+
+  .form-help {
+    @apply text-sm mt-1;
+    color: hsl(var(--color-neutral));
+  }
+
+  .table {
+    @apply w-full text-sm text-left;
+    color: hsl(var(--color-neutral));
+  }
+
+  .table-header {
+    @apply text-xs uppercase;
+    color: hsl(var(--color-text-primary));
+    background-color: hsl(var(--color-surface-elevated));
+  }
+
+  .dark .table-header {
+    color: hsl(var(--color-text-secondary));
+    background-color: hsl(var(--color-surface-elevated));
+  }
+
+  .table-row {
+    background-color: hsl(var(--color-surface));
+    border-bottom: 1px solid hsl(var(--color-surface-elevated));
+  }
+
+  .table-row:hover {
+    background-color: hsl(var(--color-surface-elevated));
+  }
+
+  .dark .table-row {
+    background-color: hsl(var(--color-surface-elevated));
+    border-bottom-color: hsl(var(--color-border));
+  }
+
+  .dark .table-row:hover {
+    background-color: hsl(var(--color-surface));
+  }
+
+  .table-cell {
+    @apply px-6 py-4;
+  }
+
+  .table-header-cell {
+    @apply table-cell font-medium;
+  }
+
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2;
+    border-color: hsl(var(--color-surface-elevated));
+    border-top-color: hsl(var(--color-primary));
+  }
+
+  .skeleton {
+    @apply animate-pulse;
+    background-color: hsl(var(--color-surface-elevated));
+    border-radius: var(--border-radius);
+  }
+
+  .dark .skeleton {
+    background-color: hsl(var(--color-surface-elevated));
+  }
+
+  .field_with_errors {
+    @apply inline-block w-full;
+  }
+
+  .field_with_errors input,
+  .field_with_errors textarea,
+  .field_with_errors select {
+    border-color: hsl(var(--color-danger)) !important;
+  }
+
+  .field_with_errors input:focus,
+  .field_with_errors textarea:focus,
+  .field_with_errors select:focus {
+    box-shadow: 0 0 0 3px hsl(var(--color-danger) / 0.1) !important;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .transition-default {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .focus-ring {
+    @apply focus:outline-none;
+  }
+
+  .focus-ring:focus {
+    box-shadow: 0 0 0 3px hsl(var(--color-primary) / 0.3);
+  }
+
+  /*
+   * CONTAINER SYSTEM
+   *
+   * Responsive container classes with consistent max-width and padding.
+   * Feel free to modify as needed, but please don't remove.
+   *
+   * .container-xl  - Recommended for navbar, headers, list pages
+   * .container-lg  - Detail pages, dashboard, content display
+   * .container-md  - Form pages, create/edit pages
+   * .container-sm  - Login, registration, small forms
+   */
+
+  .container-sm {
+    @apply w-full max-w-2xl mx-auto px-4 sm:px-6;
+  }
+
+  .container-md {
+    @apply w-full max-w-4xl mx-auto px-4 sm:px-6;
+  }
+
+  .container-lg {
+    @apply w-full max-w-6xl mx-auto px-4 sm:px-6;
+  }
+
+  .container-xl {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6;
+  }
+
+  /* write your own components here */
+  
+  /* Mobile-first touch optimizations for Telegram Web App */
+  .touch-target {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    touch-action: manipulation; /* Faster tap response */
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Safe area insets for notched devices */
+  .safe-top {
+    padding-top: max(var(--space-md), var(--safe-area-top));
+  }
+  
+  .safe-bottom {
+    padding-bottom: max(var(--space-md), var(--safe-area-bottom));
+  }
+  
+  /* Telegram Web App optimized chat bubbles */
+  .message-bubble {
+    @apply rounded-2xl px-4 py-2 max-w-[85%] break-words;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  .message-bubble-user {
+    @apply message-bubble rounded-br-md;
+    background-color: hsl(var(--color-primary));
+    color: white;
+  }
+  
+  .message-bubble-assistant {
+    @apply message-bubble rounded-bl-md;
+    background-color: hsl(var(--color-surface-elevated));
+    color: hsl(var(--color-text-primary));
+    border: 1px solid hsl(var(--color-border));
+  }
+  
+  /* Mobile-optimized scrollable area */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+  }
+  
+  /* Full-height container for Telegram Web App */
+  .telegram-full-height {
+    height: 100vh;
+    height: -webkit-fill-available; /* iOS Safari fix */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Touch-friendly input areas */
+  .mobile-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Optimized for one-handed mobile use */
+  .bottom-action-bar {
+    @apply safe-bottom;
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    background-color: hsl(var(--color-card));
+    border-top: 1px solid hsl(var(--color-border));
+    backdrop-filter: blur(10px);
+    padding-left: max(var(--space-md), var(--safe-area-left));
+    padding-right: max(var(--space-md), var(--safe-area-right));
+  }
+  
+  /* Mobile-friendly navbar */
+  .mobile-navbar {
+    @apply safe-top;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: hsl(var(--color-card));
+    border-bottom: 1px solid hsl(var(--color-border));
+    backdrop-filter: blur(10px);
+    padding-left: max(var(--space-md), var(--safe-area-left));
+    padding-right: max(var(--space-md), var(--safe-area-right));
+  }
+
+  /* Message content formatting */
+  .message-content {
+    line-height: 1.6;
+    word-wrap: break-word;
+  }
+
+  /* Code blocks and syntax highlighting */
+  .message-content pre {
+    background-color: hsl(var(--color-surface-elevated));
+    border: 1px solid hsl(var(--color-border));
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-md);
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    margin: var(--space-md) 0;
+    position: relative;
+  }
+
+  .message-content code {
+    background-color: hsl(var(--color-surface-elevated));
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: var(--text-xs);
+    color: hsl(var(--color-text-primary));
+  }
+
+  .message-content pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  /* Copy button for code blocks */
+  .code-block-wrapper {
+    position: relative;
+  }
+
+  .copy-code-btn {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    padding: var(--space-xs);
+    background-color: hsl(var(--color-background) / 0.9);
+    border: 1px solid hsl(var(--color-border));
+    border-radius: var(--border-radius);
+    opacity: 0;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+    cursor: pointer;
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .code-block-wrapper:hover .copy-code-btn {
+    opacity: 1;
+  }
+
+  .copy-code-btn:hover {
+    background-color: hsl(var(--color-surface));
+  }
+
+  .copy-code-btn svg {
+    width: 16px;
+    height: 16px;
+    color: hsl(var(--color-text-secondary));
+  }
+
+  .copy-code-btn:hover svg {
+    color: hsl(var(--color-text-primary));
+  }
+
+  /* Success state for copy button */
+  .copy-code-btn.copied {
+    opacity: 1;
+    background-color: hsl(var(--color-success) / 0.1);
+    border-color: hsl(var(--color-success) / 0.3);
+  }
+
+  .copy-code-btn.copied svg {
+    color: hsl(var(--color-success));
+  }
+
+  /* Message action buttons */
+  .message-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    display: flex;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+  }
+
+  .message-bubble-user:hover .message-actions,
+  .message-bubble-assistant:hover .message-actions {
+    opacity: 1;
+  }
+
+  .message-action-btn {
+    padding: var(--space-xs) var(--space-sm);
+    background-color: hsl(var(--color-background) / 0.9);
+    border: 1px solid hsl(var(--color-border));
+    border-radius: var(--border-radius);
+    font-size: var(--text-xs);
+    color: hsl(var(--color-text-secondary));
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: var(--touch-target-min);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .message-action-btn:hover {
+    background-color: hsl(var(--color-surface));
+    color: hsl(var(--color-text-primary));
+    border-color: hsl(var(--color-text-secondary) / 0.3);
+  }
+
+  .message-action-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .message-action-btn.btn-copy:hover {
+    background-color: hsl(var(--color-primary) / 0.1);
+    border-color: hsl(var(--color-primary) / 0.3);
+    color: hsl(var(--color-primary));
+  }
+
+  .message-action-btn.btn-edit:hover {
+    background-color: hsl(var(--color-warning) / 0.1);
+    border-color: hsl(var(--color-warning) / 0.3);
+    color: hsl(var(--color-warning));
+  }
+
+  .message-action-btn.btn-regenerate:hover {
+    background-color: hsl(var(--color-success) / 0.1);
+    border-color: hsl(var(--color-success) / 0.3);
+    color: hsl(var(--color-success));
+  }
+
+  /* Success state for message actions */
+  .message-action-btn.copied {
+    background-color: hsl(var(--color-success) / 0.1);
+    border-color: hsl(var(--color-success) / 0.3);
+    color: hsl(var(--color-success));
+  }
+
+  /* Edit mode styles */
+  .message-edit-form {
+    margin-top: var(--space-sm);
+  }
+
+  .message-edit-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: var(--space-sm);
+    border: 1px solid hsl(var(--color-border));
+    border-radius: var(--border-radius);
+    background-color: hsl(var(--color-background));
+    color: hsl(var(--color-text-primary));
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  .message-edit-textarea:focus {
+    outline: none;
+    border-color: hsl(var(--color-primary));
+    box-shadow: 0 0 0 2px hsl(var(--color-primary) / 0.2);
+  }
+
+  .message-edit-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+    justify-content: flex-end;
+  }
+
+  /* Enhanced text formatting */
+  .message-content h1 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-md);
+    color: hsl(var(--color-text-primary));
+  }
+
+  .message-content h1:first-child {
+    margin-top: 0;
+  }
+
+  .message-content h2 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin-top: var(--space-md);
+    margin-bottom: var(--space-sm);
+    color: hsl(var(--color-text-primary));
+  }
+
+  .message-content h2:first-child {
+    margin-top: 0;
+  }
+
+  .message-content h3 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-top: var(--space-md);
+    margin-bottom: var(--space-xs);
+    color: hsl(var(--color-text-primary));
+  }
+
+  .message-content h3:first-child {
+    margin-top: 0;
+  }
+
+  .message-content ul {
+    list-style-type: disc;
+    margin-left: var(--space-lg);
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .message-content ol {
+    list-style-type: decimal;
+    margin-left: var(--space-lg);
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .message-content li {
+    margin-bottom: var(--space-xs);
+    line-height: 1.5;
+  }
+
+  .message-content blockquote {
+    border-left: 4px solid hsl(var(--color-primary) / 0.3);
+    padding-left: var(--space-md);
+    margin: var(--space-md) 0;
+    color: hsl(var(--color-text-muted));
+    font-style: italic;
+  }
+
+  .message-content table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid hsl(var(--color-border));
+    border-radius: var(--border-radius-lg);
+    margin: var(--space-md) 0;
+    overflow: hidden;
+  }
+
+  .message-content th,
+  .message-content td {
+    border: 1px solid hsl(var(--color-border));
+    padding: var(--space-sm) var(--space-md);
+    text-align: left;
+    font-size: var(--text-xs);
+  }
+
+  .message-content th {
+    background-color: hsl(var(--color-surface));
+    font-weight: 600;
+    color: hsl(var(--color-text-primary));
+  }
+
+  .message-content td {
+    color: hsl(var(--color-text-secondary));
+  }
+
+  .message-content a {
+    color: hsl(var(--color-primary));
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  .message-content a:hover {
+    color: hsl(var(--color-primary-dark));
+  }
+
+  .message-content strong {
+    font-weight: 600;
+    color: hsl(var(--color-text-primary));
+  }
+
+  .message-content em {
+    font-style: italic;
+  }
+
+  /* Mobile-specific adjustments for code blocks */
+  @media (max-width: 640px) {
+    .message-content pre {
+      font-size: 12px;
+      padding: var(--space-sm);
+      margin: var(--space-sm) 0;
+    }
+
+    .copy-code-btn {
+      opacity: 1; /* Always visible on mobile for touch */
+      top: var(--space-xs);
+      right: var(--space-xs);
+    }
+
+    /* Mobile adjustments for message actions */
+    .message-actions {
+      opacity: 1; /* Always visible on mobile for touch */
+    }
+
+    .message-action-btn {
+      font-size: 11px;
+      padding: var(--space-xs);
+      min-height: 36px; /* Smaller touch target for mobile */
+    }
+
+    .message-edit-textarea {
+      font-size: 16px; /* Prevent iOS zoom */
+      min-height: 100px;
+    }
+  }
+
+} /* End of @layer components */
+
+@tailwind utilities;
+
+/* Mobile-specific responsive improvements */
+@media (max-width: 640px) {
+  /* Ensure text is readable on mobile */
+  body {
+    font-size: var(--text-base);
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  /* Better touch targets on mobile */
+  a, button, [role="button"] {
+    min-height: var(--touch-target-min);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Optimize forms for mobile */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevent iOS zoom */
+  }
+}
+

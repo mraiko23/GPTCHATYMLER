@@ -1,0 +1,190 @@
+<% if user_signed_in? %>
+  <!-- Authenticated user content - redirect to chats -->
+  <div class="telegram-full-height bg-background">
+    <div class="flex-1 flex items-center justify-center safe-top safe-bottom px-4">
+      <div class="max-w-md w-full text-center">
+        <!-- App Icon -->
+        <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        </div>
+        
+        <!-- User Profile Display - Mobile optimized -->
+        <div class="bg-card rounded-2xl p-6 mb-6 shadow-sm border border-border">
+          <div class="flex items-center justify-center space-x-4 mb-4">
+            <img 
+              src="<%= current_user.avatar_url %>" 
+              alt="<%= current_user.display_name %>"
+              class="w-16 h-16 rounded-full object-cover border-3 border-primary shadow-md"
+              onerror="this.src='https://ui-avatars.com/api/?name=<%= CGI.escape(current_user.display_name) %>&background=0088cc&color=fff'"
+            />
+            <div class="text-left flex-1">
+              <h1 class="text-xl font-bold text-text-primary leading-tight">
+                Привет, <%= current_user.display_name %>!
+              </h1>
+              <% if current_user.telegram_user? && current_user.username.present? %>
+                <p class="text-sm text-text-secondary mt-1">@<%= current_user.username %></p>
+              <% end %>
+            </div>
+          </div>
+          
+          <p class="text-text-secondary text-sm leading-relaxed">
+            Готов начать общение с AI-ассистентом?
+          </p>
+        </div>
+        
+        <!-- Action Button - Touch optimized -->
+        <%= link_to chats_path, class: "btn-primary w-full text-lg font-semibold py-4 mb-4 touch-target shadow-md" do %>
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          Перейти к диалогам
+        <% end %>
+        
+        <!-- Secondary Action -->
+        <div class="text-sm">
+          <%= link_to sign_out_path, method: :delete, 
+                class: "text-text-muted hover:text-danger transition-colors touch-target inline-flex items-center",
+                data: { turbo_confirm: "Вы уверены, что хотите выйти?" } do %>
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            Выйти
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Auto-redirect after 2 seconds
+    setTimeout(() => {
+      window.location.href = '<%= chats_path %>';
+    }, 2000);
+  </script>
+<% else %>
+  <!-- Landing page for non-authenticated users - Mobile optimized -->
+  <div class="telegram-full-height bg-gradient-to-br from-primary/5 to-secondary/5" 
+       data-controller="telegram-web-app" 
+       data-telegram-web-app-auto-auth-value="true">
+    <div class="flex-1 flex items-center justify-center safe-top safe-bottom px-4">
+      <div class="max-w-md w-full text-center">
+        <!-- Logo -->
+        <div class="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl">
+          <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-2xl sm:text-3xl font-bold text-text-primary mb-4 leading-tight">
+          Telegram AI Chat
+        </h1>
+        
+        <!-- Description -->
+        <div class="bg-card rounded-2xl p-6 mb-8 shadow-sm border border-border text-left">
+          <p class="text-text-secondary text-sm leading-relaxed">
+            Бесплатный AI-ассистент с поддержкой файлов, поиска в интернете и потокового ответа. 
+            <% if request.headers['X-Requested-With'] || request.user_agent.to_s.include?('Telegram') %>
+              <span class="text-primary font-medium">Авторизация через Telegram...</span>
+            <% else %>
+              <span class="text-warning font-medium">Доступен только в Telegram Web App.</span>
+            <% end %>
+          </p>
+        </div>
+
+        <!-- Loading state for Telegram authentication -->
+        <div id="telegram-auth-loading" class="mb-6">
+          <div class="flex items-center justify-center space-x-3 bg-card rounded-xl p-4 border border-border">
+            <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-text-secondary font-medium">Инициализация Telegram...</span>
+          </div>
+        </div>
+
+        <!-- Features - Mobile Grid -->
+        <div class="grid gap-3 mb-8">
+          <div class="flex items-center space-x-4 text-left bg-card rounded-xl p-4 border border-border">
+            <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+            </div>
+            <span class="text-text-primary font-medium text-sm">Неограниченные диалоги с AI</span>
+          </div>
+          
+          <div class="flex items-center space-x-4 text-left bg-card rounded-xl p-4 border border-border">
+            <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+              </svg>
+            </div>
+            <span class="text-text-primary font-medium text-sm">Загрузка и анализ файлов</span>
+          </div>
+          
+          <div class="flex items-center space-x-4 text-left bg-card rounded-xl p-4 border border-border">
+            <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+            <span class="text-text-primary font-medium text-sm">Поиск актуальной информации</span>
+          </div>
+
+          <div class="flex items-center space-x-4 text-left bg-card rounded-xl p-4 border border-border">
+            <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+              </svg>
+            </div>
+            <span class="text-text-primary font-medium text-sm">Только через Telegram</span>
+          </div>
+        </div>
+
+        <!-- Manual Telegram Login Button (fallback) - Touch optimized -->
+        <div class="space-y-4">
+          <button 
+            data-action="click->telegram-web-app#authenticate"
+            class="btn-primary w-full flex items-center justify-center space-x-3 text-lg font-semibold py-4 touch-target shadow-lg"
+            style="display: none;"
+            id="manual-telegram-login"
+          >
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+            </svg>
+            <span>Войти через Telegram</span>
+          </button>
+        </div>
+
+        <!-- Error display -->
+        <div data-telegram-web-app-target="authError" class="hidden mt-4 p-4 bg-danger-bg border border-danger rounded-xl text-sm text-danger"></div>
+        
+        <!-- Note -->
+        <div class="bg-card rounded-xl p-4 mt-6 border border-border">
+          <p class="text-xs text-text-muted leading-relaxed">
+            Это приложение работает только в Telegram Web App. 
+            Для получения доступа откройте ссылку через бот в Telegram.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Show manual login button after 3 seconds if auto-auth fails
+    // Optimized for mobile performance
+    setTimeout(() => {
+      const loadingEl = document.getElementById('telegram-auth-loading');
+      const manualLoginEl = document.getElementById('manual-telegram-login');
+      
+      if (loadingEl) {
+        loadingEl.style.display = 'none';
+        loadingEl.style.opacity = '0';
+      }
+      if (manualLoginEl) {
+        manualLoginEl.style.display = 'flex';
+        manualLoginEl.style.opacity = '1';
+      }
+    }, 3000);
+  </script>
+<% end %>

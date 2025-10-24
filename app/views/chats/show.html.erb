@@ -1,0 +1,128 @@
+<div class="relative min-h-screen bg-background" data-controller="chat" data-chat-chat-id-value="<%= @chat.id %>">
+  <!-- Scroll to bottom button - shows when scrolled up -->
+  <div class="fixed bottom-24 right-4 z-50 hidden" data-chat-target="scrollButton">
+    <button type="button" 
+            data-action="chat#scrollToBottom" 
+            class="btn-primary rounded-full p-4 shadow-lg touch-target flex items-center justify-center">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+      </svg>
+    </button>
+  </div>
+  <!-- Header - Mobile optimized, fixed to top -->
+  <div class="fixed top-0 left-0 right-0 z-40 mobile-navbar flex items-center justify-between bg-card border-b border-border">
+    <div class="flex items-center space-x-3 min-w-0 flex-1">
+      <%= link_to chats_path, class: "text-primary hover:text-primary-light touch-target p-3 -m-1 rounded-xl transition-colors" do %>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      <% end %>
+      
+      <div class="min-w-0 flex-1">
+        <h1 class="font-semibold text-base text-text-primary truncate"><%= @chat.title %></h1>
+        <p class="text-xs text-text-muted">
+          <%= @chat.messages.count %> 
+          <%= case @chat.messages.count % 10
+              when 1
+                @chat.messages.count % 100 == 11 ? 'сообщений' : 'сообщение'
+              when 2, 3, 4
+                @chat.messages.count % 100 >= 12 && @chat.messages.count % 100 <= 14 ? 'сообщений' : 'сообщения'
+              else
+                'сообщений'
+              end %>
+        </p>
+      </div>
+    </div>
+    
+    <div class="flex items-center">
+      <%= link_to edit_chat_path(@chat), class: "touch-target p-3 -m-1 text-text-secondary hover:text-text-primary rounded-xl hover:bg-surface transition-colors" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+        </svg>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Messages Container - Mobile optimized scroll -->
+  <div class="mobile-scroll" data-chat-target="messages" data-controller="message-formatter" style="padding-top: 65px; padding-bottom: 120px;">
+    <div id="messages" class="px-4 py-4 space-y-3">
+      <% @chat.messages.ordered.each do |message| %>
+        <div id="message-<%= message.id %>" class="flex <%= message.role == 'user' ? 'justify-end' : 'justify-start' %>">
+          <div class="<%= message.role == 'user' ? 'message-bubble-user' : 'message-bubble-assistant' %> shadow-sm" 
+               data-controller="message-actions"
+               data-message-actions-message-id-value="<%= message.id %>"
+               data-message-actions-chat-id-value="<%= @chat.id %>">
+            
+            <% if message.content.present? %>
+              <div class="message-content" data-message-actions-target="content"><%= simple_format(message.content, {}, wrapper_tag: "div") %></div>
+            <% end %>
+            <div class="text-xs mt-2 <%= message.role == 'user' ? 'text-white/70' : 'text-text-muted' %>">
+              <%= message.created_at.strftime('%H:%M') %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    
+      <% if @chat.messages.empty? %>
+        <div class="flex items-center justify-center" style="min-height: 60vh;">
+          <div class="text-center text-text-muted px-4">
+            <div class="w-20 h-20 mx-auto mb-6 bg-primary/10 rounded-full flex items-center justify-center">
+              <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+            </div>
+            <p class="text-base font-medium text-text-primary mb-2">Начните диалог</p>
+            <p class="text-sm text-text-muted">Задайте любой вопрос или попросите помощи</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Input Area - Mobile optimized, fixed to bottom -->
+  <div class="fixed bottom-0 left-0 right-0 z-40 bottom-action-bar px-4 py-3">
+    <%= form_with url: chat_messages_path(@chat), method: :post, 
+                  id: "chat-form",
+                  data: { chat_target: "form", action: "turbo:submit-end->chat#handleFormSubmitEnd" }, 
+                  html: { class: "space-y-3", multipart: true } do |f| %>
+      
+      <!-- File Preview Area -->
+      <div data-chat-target="filePreview" class="hidden space-y-2 mb-2">
+        <!-- Dynamic file previews will be inserted here -->
+      </div>
+      
+      <!-- Input Row - Touch optimized -->
+      <div class="flex items-end space-x-2">
+        <!-- File Upload Button -->
+        <label class="touch-target flex-shrink-0 p-3 -m-1 text-text-secondary hover:text-text-primary cursor-pointer rounded-xl hover:bg-surface transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+          </svg>
+          <%= file_field_tag 'message[files][]', 
+            multiple: true,
+            accept: "image/*,application/pdf,.txt,.doc,.docx,.csv,.json",
+            data: { chat_target: "fileInput", action: "change->chat#handleFileChange" },
+            class: "hidden" %>
+        </label>
+        <!-- Text Input - Mobile optimized -->
+        <div class="flex-1">
+          <%= f.text_area :content, 
+            rows: 1,
+            placeholder: "Введите сообщение...",
+            data: { chat_target: "input" },
+            class: "mobile-input form-input resize-none rounded-2xl" %>
+        </div>
+        
+        <!-- Send Button - Touch optimized -->
+        <%= button_tag type: "submit", 
+          data: { chat_target: "sendButton" },
+          class: "btn-primary touch-target p-3 rounded-full shadow-md" do %>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

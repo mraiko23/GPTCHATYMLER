@@ -1,0 +1,77 @@
+<nav class="mobile-navbar bg-card border-b border-border" data-navbar>
+  <div class="container mx-auto">
+    <div class="flex items-center justify-between min-h-[56px] py-2">
+      <!-- Logo - Mobile optimized -->
+      <div class="flex items-center space-x-2">
+        <%= link_to root_path, class: "flex items-center space-x-3 text-text-primary hover:text-primary touch-target p-2 -m-2 transition-colors" do %>
+          <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center shadow-sm">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </div>
+          <span class="font-bold text-base hidden xs:block">Telegram AI</span>
+          <span class="font-bold text-sm block xs:hidden">AI</span>
+        <% end %>
+      </div>
+      
+      <!-- Navigation Links - Mobile optimized -->
+      <div class="flex items-center space-x-1">
+        <% if user_signed_in? %>
+          <!-- Chats Link -->
+          <%= link_to chats_path, class: "text-text-secondary hover:text-text-primary transition-colors touch-target p-3 -m-1 rounded-xl" do %>
+            <div class="flex items-center space-x-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+              </svg>
+              <span class="hidden sm:inline text-sm font-medium">Диалоги</span>
+            </div>
+          <% end %>
+          
+          <!-- User Profile - Touch optimized -->
+          <%= link_to profile_path, class: "touch-target flex items-center space-x-3 px-3 py-2 rounded-xl bg-surface-elevated hover:bg-surface-hover transition-colors border border-border shadow-sm" do %>
+            <img 
+              src="<%= current_user.avatar_url %>" 
+              alt="<%= current_user.display_name %>"
+              class="w-8 h-8 rounded-full object-cover border-2 border-primary shadow-sm"
+              onerror="this.src='https://ui-avatars.com/api/?name=<%= CGI.escape(current_user.display_name) %>&background=0088cc&color=fff'"
+            />
+            <div class="hidden sm:flex flex-col min-w-0">
+              <span class="text-sm font-medium text-text-primary truncate">
+                <%= current_user.display_name %>
+              </span>
+              <% if current_user.telegram_user? && current_user.username.present? %>
+                <span class="text-xs text-text-muted truncate">
+                  @<%= current_user.username %>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+          
+          <!-- Logout Button - Touch optimized -->
+          <%= link_to sign_out_path, method: :delete, 
+            class: "text-text-secondary hover:text-danger transition-colors touch-target p-3 -m-1 rounded-xl",
+            data: { turbo_confirm: "Выйти из аккаунта?" } do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+          <% end %>
+        <% else %>
+          <!-- Telegram Login Button - Mobile optimized -->
+          <div data-controller="telegram-web-app" data-telegram-web-app-auto-auth-value="false">
+            <button 
+              data-action="click->telegram-web-app#authenticate"
+              class="btn-primary text-sm px-4 py-2.5 flex items-center space-x-2 touch-target shadow-sm"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+              </svg>
+              <span class="hidden xs:inline">Войти</span>
+              <span class="xs:hidden">Вход</span>
+            </button>
+            <div data-telegram-web-app-target="authError" class="hidden mt-2 text-xs text-danger"></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>

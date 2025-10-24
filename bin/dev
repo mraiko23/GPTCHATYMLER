@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+if gem list --no-installed --exact --silent foreman; then
+  echo "Installing foreman..."
+  gem install foreman
+fi
+
+# Override default port for foreman
+export PORT="${PORT:-3000}"
+export APP_PORT="${PORT}"
+
+exec foreman start -f Procfile.dev --env /dev/null "$@"
