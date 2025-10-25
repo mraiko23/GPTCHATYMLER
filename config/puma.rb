@@ -29,12 +29,13 @@ plugin :tmp_restart
 pidfile ENV.fetch("PIDFILE", "tmp/pids/server.pid") if ENV["PIDFILE"]
 
 # Configure worker lifecycle
-on_worker_boot do
-  # Worker specific setup for Rails 4.1+
-  ActiveRecord::Base.establish_connection if defined?(ActiveRecord)
-end
-
-before_fork do
-  # Disconnect from the database before forking
-  ActiveRecord::Base.connection_pool.disconnect! if defined?(ActiveRecord)
-end
+# Note: Using JSON database, no need for database connection management
+# on_worker_boot do
+#   # Worker specific setup for Rails 4.1+
+#   ActiveRecord::Base.establish_connection if defined?(ActiveRecord)
+# end
+#
+# before_fork do
+#   # Disconnect from the database before forking
+#   ActiveRecord::Base.connection_pool.disconnect! if defined?(ActiveRecord)
+# end

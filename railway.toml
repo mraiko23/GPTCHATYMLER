@@ -1,2 +1,7 @@
 [build]
-builder = "DOCKERFILE"
+builder = "nixpacks"
+
+[deploy]
+startCommand = "bundle exec rails server -b 0.0.0.0 -p $PORT"
+restartPolicyType = "always"
+restartPolicyMaxRetries = 10

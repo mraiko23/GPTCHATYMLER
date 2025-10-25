@@ -1,363 +1,144 @@
-# 🚂 ДЕПЛОЙ НА RAILWAY.APP
+# Railway Deployment Guide
 
-Railway.app - современная платформа для деплоя с бесплатным тарифом $5 в месяц кредитов.
+## Prerequisites
 
----
+1. GitHub account with this repository
+2. Railway account (https://railway.app)
+3. API keys from providers (OpenRouter, Perplexity, OpenAI)
 
-## ✅ ПРЕИМУЩЕСТВА RAILWAY
+## Environment Variables
 
-✨ **Проще чем Render:**
-- Автоматическое определение Rails приложений
-- Встроенная PostgreSQL база данных в один клик
-- Автоматический SSL сертификат
-- Простой интерфейс
-- Быстрый деплой (3-5 минут)
-
-💰 **Бесплатный тариф:**
-- $5 кредитов каждый месяц БЕСПЛАТНО
-- Этого хватит на небольшое приложение
-- Кредитная карта НЕ требуется для старта
-
-🚀 **Автоматика:**
-- Автоматический деплой при push в GitHub
-- Автоматические миграции базы данных
-- Автоматическое обнаружение Rails
-
----
-
-## 🚀 БЫСТРЫЙ СТАРТ (5 МИНУТ)
-
-### Шаг 1: Регистрация на Railway
-
-1. Откройте: **https://railway.app/**
-2. Нажмите **"Start a New Project"** или **"Login with GitHub"**
-3. Авторизуйтесь через GitHub (mraiko23)
-
-### Шаг 2: Создание проекта
-
-1. На главной странице нажмите **"New Project"**
-2. Выберите **"Deploy from GitHub repo"**
-3. Найдите и выберите репозиторий: **mraiko23/aichatYMLER**
-4. Railway автоматически определит Rails приложение!
-
-### Шаг 3: Добавление PostgreSQL базы данных
-
-1. В вашем проекте нажмите **"+ New"**
-2. Выберите **"Database"** → **"Add PostgreSQL"**
-3. Railway автоматически создаст базу данных
-4. Railway автоматически установит переменную `DATABASE_URL`!
-
-### Шаг 4: Настройка переменных окружения
-
-В разделе вашего сервиса (web service) перейдите на вкладку **"Variables"**.
-
-Добавьте следующие переменные:
-
-#### 1. RAILS_MASTER_KEY
-```
-678be8eb2fb57237d44c93e381e673d3
-```
-
-#### 2. SECRET_KEY_BASE
-```
-c1b3fd3d0d5f38f285154b09e1445dcab54d38b6e05baf4b4f6330436f8944e1b21e2fea73fd5ea86e0b7499773eef92a5cb4a042e80409624c0806d7d64e90a
-```
-
-#### 3. CLACKY_LLM_API_KEY
-```
-sk-SJeu29HwKbFU3Bx-ixW9oA
-```
-
-#### 4. RAILS_ENV
-```
-production
-```
-
-#### 5. CLACKY_LLM_BASE_URL
-```
-https://proxy.clacky.ai
-```
-
-#### 6. CLACKY_LLM_MODEL
-```
-gemini-2.5-flash
-```
-
-#### 7. CLACKY_IMAGE_GEN_MODEL
-```
-gemini-2.5-flash
-```
-
-#### 8. IMAGE_GEN_SIZE
-```
-1024x1024
-```
-
-#### 9. GOOGLE_OAUTH_ENABLED
-```
-false
-```
-
-#### 10. FACEBOOK_OAUTH_ENABLED
-```
-false
-```
-
-#### 11. TWITTER_OAUTH_ENABLED
-```
-false
-```
-
-#### 12. GITHUB_OAUTH_ENABLED
-```
-false
-```
-
-#### 13. RAILS_LOG_TO_STDOUT
-```
-enabled
-```
-
-#### 14. RAILS_SERVE_STATIC_FILES
-```
-enabled
-```
-
-### Шаг 5: Деплой!
-
-1. После добавления всех переменных Railway автоматически запустит деплой
-2. Дождитесь завершения (3-5 минут)
-3. Railway покажет URL вашего приложения (например: `your-app.up.railway.app`)
-
----
-
-## 🎯 ПОСЛЕ ДЕПЛОЯ: Создание администратора
-
-### Через Railway Shell:
-
-1. В Railway Dashboard откройте ваш проект
-2. Выберите web service
-3. Перейдите на вкладку **"Settings"**
-4. Найдите секцию **"Service"** и нажмите **"Deploy Logs"**
-5. Справа вверху найдите кнопку с иконкой терминала или три точки
-6. Выберите **"Run Command"** или **"Shell"**
-7. Выполните команды:
+Set these in Railway dashboard:
 
 ```bash
-# Запустить Rails консоль
-bundle exec rails console
+# Required
+RAILS_ENV=production
+RAILS_SERVE_STATIC_FILES=true
+RAILS_LOG_TO_STDOUT=true
+SECRET_KEY_BASE=<generate with: rails secret>
 
-# Создать администратора
-User.create!(username: 'admin', password: 'ваш_надежный_пароль', role: 'admin')
+# API Keys (at least one required)
+OPENROUTER_API_KEY=your_openrouter_api_key
+PERPLEXITY_API_KEY=your_perplexity_api_key
+OPENAI_API_KEY=your_openai_api_key
 
-# Выйти
-exit
+# Telegram Bot Configuration
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+TELEGRAM_BOT_USERNAME=your_bot_username
+
+# Optional: Custom domain
+RAILS_ALLOWED_HOSTS=your-domain.com,your-app.up.railway.app
 ```
 
-Готово! Теперь войдите на сайт с логином `admin` и вашим паролем.
+## Deployment Steps
 
----
+### 1. Create Railway Project
 
-## 📋 АВТОМАТИЧЕСКИ НАСТРОЕНО
+1. Go to https://railway.app
+2. Click "New Project"
+3. Select "Deploy from GitHub repo"
+4. Choose your repository: `mraiko23/aichatYMLER`
+5. Select branch: `chore/init-clacky-env`
 
-Railway автоматически:
-- ✅ Определяет Rails приложение
-- ✅ Устанавливает Ruby версию из `.ruby-version`
-- ✅ Запускает `bundle install`
-- ✅ Компилирует assets (`rails assets:precompile`)
-- ✅ Запускает миграции (`rails db:migrate`)
-- ✅ Создает PostgreSQL базу данных
-- ✅ Устанавливает `DATABASE_URL` автоматически
-- ✅ Привязывает домен с SSL сертификатом
-- ✅ Автоматически деплоит при push в GitHub
+### 2. Configure Environment Variables
 
----
+1. Go to your project in Railway
+2. Click on "Variables" tab
+3. Add all environment variables listed above
+4. Generate SECRET_KEY_BASE:
+   ```bash
+   rails secret
+   ```
 
-## 🔧 ФАЙЛЫ КОНФИГУРАЦИИ
+### 3. Deploy
 
-В репозитории уже созданы:
+Railway will automatically:
+- Install dependencies (bundle install, npm install)
+- Precompile assets
+- Start the application
 
-### 1. `railway.json`
-Конфигурация Railway для билда и деплоя:
-```json
-{
-  "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "bundle install && bundle exec rails assets:precompile && bundle exec rails assets:clean"
-  },
-  "deploy": {
-    "startCommand": "bundle exec rails db:migrate && bundle exec puma -C config/puma.rb",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
-  }
-}
-```
+### 4. Setup Telegram Bot
 
-### 2. `Procfile`
-Процессы для запуска:
-```
-web: bundle exec puma -C config/puma.rb
-release: bundle exec rails db:migrate
-```
+After deployment:
 
-### 3. `config/puma.rb`
-Настроен Puma web server для production.
+1. Get your Railway app URL (e.g., `https://your-app.up.railway.app`)
+2. Set Telegram webhook:
+   ```bash
+   curl -X POST "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook" \
+     -d "url=https://your-app.up.railway.app/api/telegram_auths"
+   ```
 
----
+### 5. Initialize Database
 
-## 🌐 CUSTOM DOMAIN (Опционально)
+The JSON database (`db/db.json`) will be automatically created on first use.
 
-Если хотите использовать свой домен:
+**Important**: 
+- The database is stored in the container filesystem
+- Data will persist between deployments but may be lost if container is recreated
+- For production, consider using Railway's persistent volumes or external storage
 
-1. В Railway Dashboard откройте ваш проект
-2. Выберите web service
-3. Перейдите на вкладку **"Settings"**
-4. Найдите секцию **"Domains"**
-5. Нажмите **"Custom Domain"**
-6. Введите ваш домен (например: `myapp.com`)
-7. Railway покажет CNAME запись
-8. Добавьте эту CNAME запись в настройки вашего домена
-9. Готово! SSL сертификат установится автоматически
+### 6. Create Admin Account
 
----
+Access the app and navigate to `/admin` to create your first admin account.
 
-## 📊 МОНИТОРИНГ И ЛОГИ
+## Post-Deployment
 
-### Просмотр логов:
-1. Откройте ваш проект в Railway
-2. Выберите web service
-3. Вкладка **"Deployments"** → выберите активный деплой
-4. Увидите логи в реальном времени
+### Verify Deployment
 
-### Метрики:
-1. Вкладка **"Metrics"**
-2. Показывает: CPU, Memory, Network usage
+1. Visit your Railway app URL
+2. Click "Sign in with Telegram"
+3. Test creating a chat and sending messages
 
----
+### Monitor Logs
 
-## 🆘 РЕШЕНИЕ ПРОБЛЕМ
-
-### Проблема: Деплой падает с ошибкой миграции
-
-**Решение:**
-1. Откройте Railway Shell
-2. Запустите вручную:
 ```bash
-bundle exec rails db:migrate
+# In Railway dashboard
+Click "Deployments" → Select latest deployment → "View Logs"
 ```
 
-### Проблема: Приложение не запускается
+### Common Issues
 
-**Решение:**
-1. Проверьте логи (Deployments → активный деплой)
-2. Убедитесь что все environment variables установлены
-3. Проверьте что `DATABASE_URL` установлена автоматически
+**Issue**: Application crashes on startup
+- Check logs for missing environment variables
+- Ensure SECRET_KEY_BASE is set
+- Verify API keys are correct
 
-### Проблема: 502 Bad Gateway
+**Issue**: Telegram login not working
+- Verify TELEGRAM_BOT_TOKEN is correct
+- Check webhook is set correctly
+- Ensure bot username matches TELEGRAM_BOT_USERNAME
 
-**Решение:**
-1. Проверьте что Puma слушает на правильном порту
-2. Railway автоматически устанавливает `PORT` переменную
-3. Наш `config/puma.rb` уже настроен правильно
+**Issue**: Assets not loading
+- Ensure RAILS_SERVE_STATIC_FILES=true
+- Check assets were precompiled during build
 
-### Проблема: Assets не загружаются
+**Issue**: Data lost after redeploy
+- JSON database is ephemeral in Railway by default
+- Use Railway volumes for persistent storage:
+  1. Go to project settings
+  2. Add volume mounted to `/app/db`
+  3. Redeploy
 
-**Решение:**
-Убедитесь что установлены переменные:
-```
-RAILS_LOG_TO_STDOUT=enabled
-RAILS_SERVE_STATIC_FILES=enabled
-```
+## Architecture Notes
 
----
+This application uses:
+- **JSON-based database** instead of PostgreSQL (no external DB needed)
+- **File storage** in `/storage` directory (consider S3 for production)
+- **Single dyno** deployment (no background workers needed)
+- **Inline job processing** (ChatResponseJob runs synchronously)
 
-## 💰 СТОИМОСТЬ
+## Scaling Considerations
 
-Railway дает **$5 кредитов каждый месяц БЕСПЛАТНО**.
+For high-traffic production:
 
-Примерная стоимость небольшого Rails приложения:
-- Web service (512MB RAM): ~$2-3/месяц
-- PostgreSQL база (256MB): ~$1-2/месяц
-- **ИТОГО: ~$3-5/месяц** (покрывается бесплатными кредитами!)
+1. **Database**: Migrate to PostgreSQL or MongoDB
+2. **File Storage**: Use S3 or Cloudinary
+3. **Jobs**: Use Sidekiq with Redis
+4. **Caching**: Add Redis for session storage
 
-Если приложение не активно (мало трафика), стоимость будет еще меньше.
+## Support
 
----
-
-## 🔄 АВТОМАТИЧЕСКИЙ ДЕПЛОЙ
-
-Railway автоматически деплоит при каждом push в GitHub:
-
-1. Вы делаете `git push origin main`
-2. Railway получает вебхук от GitHub
-3. Автоматически запускается новый деплой
-4. Через 3-5 минут новая версия live!
-
-Чтобы отключить автодеплой:
-1. Settings → GitHub Repo
-2. Отключите "Auto Deploy"
-
----
-
-## 📚 ПОЛЕЗНЫЕ ССЫЛКИ
-
-- **Railway Dashboard:** https://railway.app/dashboard
-- **Railway Docs:** https://docs.railway.app/
-- **Ваш проект:** https://railway.app/project/YOUR_PROJECT_ID
-- **GitHub репозиторий:** https://github.com/mraiko23/aichatYMLER
-
----
-
-## ✅ ЧЕКЛИСТ ПЕРЕД ДЕПЛОЕМ
-
-- [ ] Зарегистрирован на Railway.app
-- [ ] Создан новый проект из GitHub репозитория
-- [ ] Добавлена PostgreSQL база данных
-- [ ] Добавлены все Environment Variables (14 штук)
-- [ ] Дождался завершения первого деплоя
-- [ ] Создал администратора через Shell
-- [ ] Проверил что сайт открывается
-
----
-
-## 🎉 ГОТОВО!
-
-Ваше приложение работает на Railway! 🚂
-
-URL вашего приложения:
-```
-https://your-app-name.up.railway.app
-```
-
-Войдите как администратор и наслаждайтесь!
-
----
-
-## 🔒 БЕЗОПАСНОСТЬ
-
-⚠️ **НЕ КОММИТЬТЕ СЕКРЕТНЫЕ КЛЮЧИ В GIT!**
-
-Все секретные ключи хранятся в:
-- `RENDER_SECRETS.txt` (уже в .gitignore)
-- Railway Environment Variables (зашифровано)
-
-Храните резервную копию ключей в менеджере паролей:
-- 1Password
-- Bitwarden  
-- LastPass
-
----
-
-## 💡 СОВЕТЫ
-
-1. **Включите автодеплой** для удобства разработки
-2. **Настройте custom domain** для профессионального вида
-3. **Мониторьте метрики** чтобы оптимизировать стоимость
-4. **Используйте Railway CLI** для управления из терминала
-5. **Настройте health checks** для автоматического перезапуска
-
----
-
-🎯 **Railway.app - самый простой способ задеплоить Rails приложение!**
-
-Удачи! 🚀
+For issues, check:
+- Railway logs
+- GitHub repository issues
+- Application logs in Railway dashboard
