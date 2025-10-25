@@ -81,8 +81,9 @@ class MessagesController < ApplicationController
       return
     end
 
-    # Save message created_at before deletion
+    # Save message created_at and id before deletion
     message_created_at = @message.created_at
+    message_id = @message.id
 
     # Find the user message that prompted this response
     user_messages = @chat.messages.select { |m| m.role == 'user' && m.created_at <= message_created_at }
@@ -92,11 +93,23 @@ class MessagesController < ApplicationController
       # Save user message ID before any deletions
       user_message_id = user_message.id
       
+      # Verify user message still exists and wasn't deleted by concurrent regeneration
+      unless Message.where(id: user_message_id).any?
+        redirect_to @chat, alert: 'Исходное сообщение было удалено'
+        return
+      end
+      
       # Get IDs of messages to delete for Turbo Stream
       @deleted_message_ids = @chat.messages.select { |m| m.created_at >= message_created_at }.map(&:id)
       
       # Delete the current assistant message and any messages after it
       @chat.messages.select { |m| m.created_at >= message_created_at }.each(&:destroy)
+      
+      # Verify message was actually deleted (not already in progress)
+      if Message.where(id: message_id).any?
+        redirect_to @chat, alert: 'Не удалось удалить сообщение для регенерации'
+        return
+      end
       
       # Regenerate response using saved ID
       ChatResponseJob.perform_later(@chat.id, user_message_id)

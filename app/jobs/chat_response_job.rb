@@ -29,7 +29,18 @@ class ChatResponseJob < ApplicationJob
   #   })
   def perform(chat_id, user_message_id)
     chat = Chat.find(chat_id)
-    user_message = Message.find(user_message_id)
+    
+    # Try to find user message, return early if already deleted (fast regenerate clicks)
+    begin
+      user_message = Message.find(user_message_id)
+    rescue RecordNotFound
+      Rails.logger.warn("ChatResponseJob: Message #{user_message_id} not found (already deleted?)")
+      ActionCable.server.broadcast("chat_#{chat_id}", {
+        type: 'error',
+        message: 'Сообщение было удалено. Пожалуйста, отправьте новое сообщение.'
+      })
+      return
+    end
     
     # Get conversation history (last 20 messages for context)
     messages = chat.messages.sort_by { |m| [m.created_at, m.id] }.last(20)
