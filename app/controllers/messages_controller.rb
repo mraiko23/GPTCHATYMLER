@@ -81,13 +81,24 @@ class MessagesController < ApplicationController
       return
     end
 
-    # Save message created_at and id before deletion
-    message_created_at = @message.created_at
+    # Save message id before deletion
     message_id = @message.id
 
     # Find the user message that prompted this response
-    user_messages = @chat.messages.select { |m| m.role == 'user' && m.created_at <= message_created_at }
-    user_message = user_messages.sort_by { |m| [m.created_at, m.id] }.last
+    # We need to find the last user message that comes BEFORE this assistant message
+    all_messages = @chat.messages.sort_by { |m| [m.created_at, m.id] }
+    message_index = all_messages.index { |m| m.id == message_id }
+    
+    # Find the previous user message
+    user_message = nil
+    if message_index && message_index > 0
+      (message_index - 1).downto(0) do |i|
+        if all_messages[i].role == 'user'
+          user_message = all_messages[i]
+          break
+        end
+      end
+    end
 
     if user_message
       # Save user message ID before any deletions
@@ -99,11 +110,18 @@ class MessagesController < ApplicationController
         return
       end
       
-      # Get IDs of messages to delete for Turbo Stream
-      @deleted_message_ids = @chat.messages.select { |m| m.created_at >= message_created_at }.map(&:id)
+      # Get messages to delete: current assistant message and everything after it
+      # But keep the user message!
+      messages_to_delete = all_messages.select do |m|
+        m_index = all_messages.index { |msg| msg.id == m.id }
+        m_index && m_index >= message_index
+      end
       
-      # Delete the current assistant message and any messages after it
-      @chat.messages.select { |m| m.created_at >= message_created_at }.each(&:destroy)
+      # Get IDs for Turbo Stream
+      @deleted_message_ids = messages_to_delete.map(&:id)
+      
+      # Delete the messages
+      messages_to_delete.each(&:destroy)
       
       # Verify message was actually deleted (not already in progress)
       if Message.where(id: message_id).any?
