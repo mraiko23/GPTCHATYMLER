@@ -329,6 +329,24 @@
       "id": 75,
       "created_at": "2025-10-25T08:30:53Z",
       "updated_at": "2025-10-25T08:30:58Z"
+    },
+    {
+      "chat_id": 4,
+      "role": "user",
+      "content": "ку",
+      "attachments": null,
+      "id": 76,
+      "created_at": "2025-10-25T08:39:36Z",
+      "updated_at": "2025-10-25T08:39:36Z"
+    },
+    {
+      "chat_id": 4,
+      "role": "assistant",
+      "content": "Привет ещё раз! 👋 Чем могу помочь?",
+      "attachments": null,
+      "id": 77,
+      "created_at": "2025-10-25T08:39:36Z",
+      "updated_at": "2025-10-25T08:39:37Z"
     }
   ],
   "administrators": [
@@ -561,7 +579,7 @@
     "users": 1,
     "sessions": 2,
     "chats": 4,
-    "messages": 75,
+    "messages": 77,
     "administrators": 1,
     "admin_oplogs": 0,
     "active_storage_blobs": 18,
