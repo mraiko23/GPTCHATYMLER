@@ -27,7 +27,9 @@ services:
         value: 2b613643f4594a0977bcb1cb9e5e405db37cbfbcfdb49e779982814b0e6d4ef3
       
       - key: DATABASE_URL
-        value: postgresql://testaichatbot_db_user:xcp9w3hvdRdJ4XuxZTgggbMxliDfC5rj@dpg-d3trkn0gjchc73fga140-a:5432/testaichatbot_db
+        fromDatabase:
+          name: testaichatbot-db
+          property: connectionString
       
       - key: LLM_BASE_URL
         value: https://proxy.clacky.ai
