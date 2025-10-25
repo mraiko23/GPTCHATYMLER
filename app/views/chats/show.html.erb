@@ -72,7 +72,8 @@
               </svg>
             </div>
             <p class="text-base font-medium text-text-primary mb-2">Начните диалог</p>
-            <p class="text-sm text-text-muted">Задайте любой вопрос или попросите помощи</p>
+            <p class="text-sm text-text-muted">Задайте любой вопрос, прикрепите изображение или файл</p>
+            <p class="text-xs text-text-muted mt-2">💡 Можно отправлять файлы вместе с текстом</p>
           </div>
         </div>
       <% end %>
@@ -108,8 +109,12 @@
         <div class="flex-1">
           <%= f.text_area :content, 
             rows: 1,
-            placeholder: "Введите сообщение...",
-            data: { chat_target: "input" },
+            placeholder: "Введите сообщение или прикрепите файл...",
+            data: { 
+              chat_target: "input",
+              chat_empty_placeholder_value: "Введите сообщение или прикрепите файл...",
+              chat_file_placeholder_value: "Спросите что-то об изображении или файле..."
+            },
             class: "mobile-input form-input resize-none rounded-2xl" %>
         </div>
         
@@ -121,6 +126,11 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
           </svg>
         <% end %>
+      </div>
+      
+      <!-- Helpful hint -->
+      <div class="text-center">
+        <p class="text-xs text-text-muted">💡 Совет: Можно отправлять изображения с вопросами, например: "Что на этой картинке?" или "Назови один элемент из изображения"</p>
       </div>
     <% end %>
   </div>

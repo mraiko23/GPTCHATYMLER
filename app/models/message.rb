@@ -9,6 +9,9 @@ class Message < ApplicationRecord
   
   # Validations are handled by LlmMessageValidationConcern for role and content
   
+  # Custom validation: user messages must have either content or files
+  validate :content_or_files_present, on: :create, if: :user?
+  
   # Attachments are stored as JSON
   # Format: [{ "url": "https://...", "type": "image", "name": "file.jpg" }]
   
@@ -21,5 +24,13 @@ class Message < ApplicationRecord
   
   def assistant_message?
     role == 'assistant'
+  end
+  
+  private
+  
+  def content_or_files_present
+    if content.blank? && !files.attached?
+      errors.add(:base, 'Message must have either text content or attached files')
+    end
   end
 end

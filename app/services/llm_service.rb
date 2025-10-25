@@ -30,6 +30,11 @@ class LlmService < ApplicationService
   def call_blocking
     raise LlmError, "Prompt cannot be blank" if @prompt.blank?
 
+    # Use mock response in development if API key is not configured
+    if use_mock_mode?
+      return generate_mock_response
+    end
+
     response = make_http_request(stream: false)
     content = response.dig("choices", 0, "message", "content")
 
@@ -45,6 +50,11 @@ class LlmService < ApplicationService
   def call_stream(&block)
     raise LlmError, "Prompt cannot be blank" if @prompt.blank?
     raise LlmError, "Block required for streaming" unless block_given?
+
+    # Use mock response in development if API key is not configured
+    if use_mock_mode?
+      return mock_stream_response(&block)
+    end
 
     full_content = ""
 
@@ -190,15 +200,75 @@ class LlmService < ApplicationService
       max_tokens: @max_tokens
     }
 
-    # Some providers require modalities when sending images
-    body[:modalities] = ["text", "image"] if @images.present?
-
     body
   end
 
   def api_key
     ENV.fetch('LLM_API_KEY') do
       raise LlmError, "LLM_API_KEY not configured"
+    end
+  end
+
+  def use_mock_mode?
+    Rails.env.development? && ENV['LLM_API_KEY'].blank?
+  end
+
+  def mock_stream_response(&block)
+    Rails.logger.info("[LLM Mock Mode] Generating mock response")
+    
+    # Generate a helpful mock response based on the prompt
+    response = generate_mock_response
+    
+    # Simulate streaming by yielding the response in chunks
+    response.chars.each_slice(5).each do |chunk_chars|
+      chunk = chunk_chars.join
+      block.call(chunk)
+      sleep(0.02) # Simulate network delay
+    end
+    
+    response
+  end
+
+  def generate_mock_response
+    # Check if user uploaded images
+    if @images.present?
+      return "🖼️ Я вижу изображение! В режиме разработки без API ключа я не могу реально проанализировать изображения. " +
+             "Чтобы включить AI Vision, добавьте LLM_API_KEY в config/application.yml.\n\n" +
+             "Для тестирования функциональности загрузки файлов - всё работает отлично! ✅"
+    end
+
+    # Generate contextual response based on prompt
+    prompt_lower = @prompt.to_s.downcase
+    
+    if prompt_lower.include?('привет') || prompt_lower.include?('hello') || prompt_lower.include?('здравств')
+      return "👋 Привет! Я работаю в демо-режиме (без API ключа). Я могу:\n\n" +
+             "✅ Принимать сообщения\n" +
+             "✅ Обрабатывать загрузку файлов\n" +
+             "✅ Показывать примеры ответов\n\n" +
+             "Чтобы включить настоящий AI, добавьте LLM_API_KEY в config/application.yml"
+    elsif prompt_lower.include?('файл') || prompt_lower.include?('file') || prompt_lower.include?('изображен')
+      return "📎 Функция загрузки файлов работает отлично! \n\n" +
+             "В режиме с настоящим API ключом я смогу:\n" +
+             "• Анализировать изображения (AI Vision)\n" +
+             "• Читать текстовые файлы\n" +
+             "• Отвечать на вопросы о содержимом\n\n" +
+             "Сейчас я работаю в демо-режиме для тестирования интерфейса."
+    elsif prompt_lower.match?(/\?$/)
+      return "❓ Это интересный вопрос! В полном режиме (с API ключом) я дам развёрнутый ответ. \n\n" +
+             "Сейчас я работаю в demo-режиме для проверки функциональности чата.\n\n" +
+             "💡 Все функции работают:\n" +
+             "• Отправка сообщений ✅\n" +
+             "• Загрузка файлов ✅\n" +
+             "• Real-time обновления ✅\n" +
+             "• WebSocket ✅"
+    else
+      return "🤖 Спасибо за сообщение! Я работаю в демо-режиме (development mode без API ключа).\n\n" +
+             "Ваше сообщение получено и обработано. В режиме с настоящим LLM API я смогу дать более содержательный ответ.\n\n" +
+             "Для включения AI:\n" +
+             "1. Получите API ключ (OpenAI, OpenRouter, или другой сервис)\n" +
+             "2. Добавьте в config/application.yml: LLM_API_KEY: 'your-key'\n" +
+             "3. Перезапустите сервер\n\n" +
+             "✨ Все остальные функции работают нормально!"
     end
   end
 

@@ -100,10 +100,19 @@ class ChatResponseJob < ApplicationJob
     end
     
     # Build full prompt with conversation history and file context
+    user_content = user_message.content.to_s.strip
+    
+    # Handle file-only messages
+    if user_content.blank? && file_context[:images].present?
+      user_content = "Что на этом изображении?"
+    elsif user_content.blank? && file_context[:text_content].present?
+      user_content = "Проанализируй этот файл"
+    end
+    
     full_prompt = if conversation_history.present?
-      "ИСТОРИЯ РАЗГОВОРА:\n#{conversation_history}\n\n#{file_context[:text_content]}ТЕКУЩИЙ ВОПРОС ПОЛЬЗОВАТЕЛЯ: #{user_message.content}"
+      "ИСТОРИЯ РАЗГОВОРА:\n#{conversation_history}\n\n#{file_context[:text_content]}ТЕКУЩИЙ ВОПРОС ПОЛЬЗОВАТЕЛЯ: #{user_content}"
     else
-      "#{file_context[:text_content]}#{user_message.content}"
+      "#{file_context[:text_content]}#{user_content}"
     end
     
     LlmService.call(

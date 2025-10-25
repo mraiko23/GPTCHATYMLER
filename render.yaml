@@ -1,49 +1,34 @@
 services:
   - type: web
-    name: testaichatbot
-    runtime: docker
-    region: frankfurt
+    name: aichat-web
+    runtime: ruby
     plan: free
-    branch: main
-    
-    # Docker build optimization settings
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    
-    # Health check for faster deploy detection
-    healthCheckPath: /
-    
-    # Auto-deploy settings
-    autoDeploy: true
-    
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
     envVars:
-      - key: RAILS_ENV
-        value: production
-      
-      - key: SECRET_KEY_BASE
-        value: 3776147fc15baac64049526867d80a5e55c0f15cde05768a04bc4e79fd947d3a40960f0dadcc9fde9f05caf5bf2975c10865c1425259ad47c9ae1197c34c375d
-      
-      - key: RAILS_MASTER_KEY
-        value: 2b613643f4594a0977bcb1cb9e5e405db37cbfbcfdb49e779982814b0e6d4ef3
-      
       - key: DATABASE_URL
         fromDatabase:
           name: testaichatbot-db
           property: connectionString
-      
-      - key: LLM_BASE_URL
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: CLACKY_LLM_API_KEY
+        sync: false
+      - key: CLACKY_LLM_BASE_URL
         value: https://proxy.clacky.ai
-      
-      - key: LLM_API_KEY
-        value: sk-7323d6tiSiegTav55nCL0Q
-      
-      - key: LLM_MODEL
-        value: gpt-4o-mini
+      - key: CLACKY_LLM_MODEL
+        value: gemini-2.5-flash
+      - key: CLACKY_IMAGE_GEN_MODEL
+        value: gemini-2.5-flash
+      - key: RAILS_LOG_TO_STDOUT
+        value: enabled
+      - key: RAILS_SERVE_STATIC_FILES
+        value: enabled
 
 databases:
   - name: testaichatbot-db
+    plan: free
     databaseName: testaichatbot_db
     user: testaichatbot_db_user
-    region: frankfurt
-    plan: free
-    ipAllowList: []

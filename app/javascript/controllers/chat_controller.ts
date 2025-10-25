@@ -11,7 +11,7 @@ export default class extends BaseChannelController {
   
   declare readonly messagesTarget: HTMLElement
   declare readonly formTarget: HTMLFormElement
-  declare readonly inputTarget: HTMLInputElement
+  declare readonly inputTarget: HTMLTextAreaElement
   declare readonly sendButtonTarget: HTMLButtonElement
   declare readonly fileInputTarget: HTMLInputElement
   declare readonly filePreviewTarget: HTMLElement
@@ -86,7 +86,7 @@ export default class extends BaseChannelController {
       this.perform('send_message', { content: content.trim() })
       
       if (this.hasInputTarget) {
-        (this.inputTarget as HTMLInputElement).value = ''
+        this.inputTarget.value = ''
       }
       return
     }
@@ -98,19 +98,22 @@ export default class extends BaseChannelController {
     
     if (files.length === 0) {
       this.clearFilePreview()
+      this.updatePlaceholder(false)
       return
     }
     
     this.displayFilePreview(files)
+    this.updatePlaceholder(true)
   }
   
   handleFormSubmitEnd(event: any): void {
     if (event.detail.success) {
       this.clearFileInput()
       this.clearFilePreview()
+      this.updatePlaceholder(false)
       
       if (this.hasInputTarget) {
-        (this.inputTarget as HTMLInputElement).value = ''
+        this.inputTarget.value = ''
       }
     }
   }
@@ -178,6 +181,15 @@ export default class extends BaseChannelController {
     this.filePreviewTarget.classList.add('hidden')
   }
   
+  private updatePlaceholder(hasFiles: boolean): void {
+    if (!this.hasInputTarget) return
+    
+    const emptyPlaceholder = this.inputTarget.dataset.chatEmptyPlaceholderValue || 'Введите сообщение или прикрепите файл...'
+    const filePlaceholder = this.inputTarget.dataset.chatFilePlaceholderValue || 'Спросите что-то об изображении или файле...'
+    
+    this.inputTarget.placeholder = hasFiles ? filePlaceholder : emptyPlaceholder
+  }
+  
   private clearFileInput(): void {
     if (!this.hasFileInputTarget) return
     
@@ -200,8 +212,10 @@ export default class extends BaseChannelController {
     
     if (dt.files.length === 0) {
       this.clearFilePreview()
+      this.updatePlaceholder(false)
     } else {
       this.displayFilePreview(Array.from(dt.files))
+      this.updatePlaceholder(true)
     }
   }
   
