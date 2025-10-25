@@ -1,0 +1,13 @@
+# Production database configuration for Railway/Render deployments
+# This file is safe to commit to git as it only references environment variables
+
+production:
+  primary: &primary_production
+    adapter: postgresql
+    encoding: unicode
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+    url: <%= ENV.fetch('DATABASE_URL') %>
+    
+  cable:
+    <<: *primary_production
+    migrations_paths: db/cable_migrate
