@@ -43,8 +43,8 @@ yarn-debug.log*
 /public/assets/*
 /tags
 
-/config/application.yml
-/config/database.yml
+# /config/application.yml  # Committed for production deployment
+# /config/database.yml  # Committed for production deployment
 /config/master.key
 **.orig
 *.old

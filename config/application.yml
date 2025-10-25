@@ -1,0 +1,41 @@
+# Application configuration for production deployment
+# All values are read from environment variables
+
+# SECRET_KEY_BASE - Rails session encryption (REQUIRED)
+SECRET_KEY_BASE: '<%= ENV.fetch("SECRET_KEY_BASE") %>'
+
+# PUBLIC_HOST - for generating URLs (OPTIONAL)
+PUBLIC_HOST: '<%= ENV.fetch("PUBLIC_HOST", ENV.fetch("CLACKY_PUBLIC_HOST", "")) %>'
+
+# SMTP Configuration (OPTIONAL - only needed for email sending)
+EMAIL_SMTP_ADDRESS: '<%= ENV.fetch("EMAIL_SMTP_ADDRESS", ENV.fetch("CLACKY_EMAIL_SMTP_ADDRESS", "")) %>'
+EMAIL_SMTP_PORT: '<%= ENV.fetch("EMAIL_SMTP_PORT", ENV.fetch("CLACKY_EMAIL_SMTP_PORT", "")) %>'
+EMAIL_SMTP_USERNAME: '<%= ENV.fetch("EMAIL_SMTP_USERNAME", ENV.fetch("CLACKY_EMAIL_SMTP_USERNAME", "")) %>'
+EMAIL_SMTP_PASSWORD: '<%= ENV.fetch("EMAIL_SMTP_PASSWORD", ENV.fetch("CLACKY_EMAIL_API_KEY", "")) %>'
+EMAIL_SMTP_DOMAIN: '<%= ENV.fetch("EMAIL_SMTP_DOMAIN", ENV.fetch("CLACKY_EMAIL_SMTP_DOMAIN", "")) %>'
+
+# LLM Service Configuration (REQUIRED)
+LLM_BASE_URL: '<%= ENV.fetch("LLM_BASE_URL", ENV.fetch("CLACKY_LLM_BASE_URL")) %>'
+LLM_API_KEY: '<%= ENV.fetch("LLM_API_KEY", ENV.fetch("CLACKY_LLM_API_KEY")) %>'
+LLM_MODEL: '<%= ENV.fetch("LLM_MODEL", ENV.fetch("CLACKY_LLM_MODEL", "gemini-2.5-flash")) %>'
+
+# Image Generation Service Configuration (REQUIRED)
+IMAGE_GEN_MODEL: '<%= ENV.fetch("IMAGE_GEN_MODEL", ENV.fetch("CLACKY_IMAGE_GEN_MODEL", "gemini-2.5-flash")) %>'
+IMAGE_GEN_SIZE: '<%= ENV.fetch("IMAGE_GEN_SIZE", "1024x1024") %>'
+
+# OAuth Provider Configuration (REQUIRED - set to 'false' if not using)
+GOOGLE_OAUTH_ENABLED: '<%= ENV.fetch("GOOGLE_OAUTH_ENABLED", "false") %>'
+GOOGLE_CLIENT_ID: '<%= ENV.fetch("GOOGLE_CLIENT_ID", ENV.fetch("CLACKY_AUTH_CLIENT_ID", "")) %>'
+GOOGLE_CLIENT_SECRET: '<%= ENV.fetch("GOOGLE_CLIENT_SECRET", ENV.fetch("CLACKY_AUTH_CLIENT_SECRET", "")) %>'
+
+FACEBOOK_OAUTH_ENABLED: '<%= ENV.fetch("FACEBOOK_OAUTH_ENABLED", "false") %>'
+FACEBOOK_APP_ID: '<%= ENV.fetch("FACEBOOK_APP_ID", ENV.fetch("CLACKY_AUTH_CLIENT_ID", "")) %>'
+FACEBOOK_APP_SECRET: '<%= ENV.fetch("FACEBOOK_APP_SECRET", ENV.fetch("CLACKY_AUTH_CLIENT_SECRET", "")) %>'
+
+TWITTER_OAUTH_ENABLED: '<%= ENV.fetch("TWITTER_OAUTH_ENABLED", "false") %>'
+TWITTER_API_KEY: '<%= ENV.fetch("TWITTER_API_KEY", ENV.fetch("CLACKY_AUTH_CLIENT_ID", "")) %>'
+TWITTER_API_SECRET: '<%= ENV.fetch("TWITTER_API_SECRET", ENV.fetch("CLACKY_AUTH_CLIENT_SECRET", "")) %>'
+
+GITHUB_OAUTH_ENABLED: '<%= ENV.fetch("GITHUB_OAUTH_ENABLED", "false") %>'
+GITHUB_CLIENT_ID: '<%= ENV.fetch("GITHUB_CLIENT_ID", ENV.fetch("CLACKY_AUTH_CLIENT_ID", "")) %>'
+GITHUB_CLIENT_SECRET: '<%= ENV.fetch("GITHUB_CLIENT_SECRET", ENV.fetch("CLACKY_AUTH_CLIENT_SECRET", "")) %>'
