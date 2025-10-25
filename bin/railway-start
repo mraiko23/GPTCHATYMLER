@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Railway start script - prepares config files and starts Puma
+
+set -e
+
+echo "==> Preparing configuration files for production..."
+
+# Copy production configs if they don't exist
+if [ ! -f config/application.yml ]; then
+  echo "  Copying application.yml.production to application.yml"
+  cp config/application.yml.production config/application.yml
+fi
+
+if [ ! -f config/database.yml ]; then
+  echo "  Copying database.yml.production to database.yml"
+  cp config/database.yml.production config/database.yml
+fi
+
+echo "==> Configuration files ready!"
+echo "==> Starting Puma..."
+
+# Start Puma
+exec bundle exec puma -C config/puma.rb
