@@ -1,12 +1,13 @@
 # Database configuration for production deployment
 # This file reads from DATABASE_URL environment variable
+# Falls back to dummy value during assets precompilation
 
 production:
   primary: &primary_production
     adapter: postgresql
     encoding: unicode
     pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
-    url: <%= ENV.fetch('DATABASE_URL') %>
+    url: <%= ENV.fetch('DATABASE_URL', 'postgresql://localhost/dummy') %>
     
   cable:
     <<: *primary_production
