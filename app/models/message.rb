@@ -1,22 +1,31 @@
 class Message < ApplicationRecord
   include LlmMessageValidationConcern
   
-  belongs_to :chat
-  has_one :user, through: :chat
+  attribute :chat_id, :integer
+  attribute :role, :string
+  attribute :content, :string
+  attribute :attachments, :string  # JSON string
   
-  # File attachments using ActiveStorage
+  belongs_to :chat
+  
+  # File attachments using JSON storage
   has_many_attached :files
   
-  # Validations are handled by LlmMessageValidationConcern for role and content
-  
   # Custom validation: user messages must have either content or files
-  validate :content_or_files_present, on: :create, if: :user?
+  # Note: We skip this on new_record since files are attached after save
+  validate :content_or_files_present, if: -> { user? && !new_record? }
   
-  # Attachments are stored as JSON
-  # Format: [{ "url": "https://...", "type": "image", "name": "file.jpg" }]
+  def self.ordered
+    all.sort_by { |m| [m.created_at, m.id] }
+  end
   
-  scope :ordered, -> { order(created_at: :asc) }
-  scope :by_role, ->(role) { where(role: role) }
+  def self.by_role(role)
+    where(role: role)
+  end
+  
+  def user
+    chat&.user
+  end
   
   def user_message?
     role == 'user'

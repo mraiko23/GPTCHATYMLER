@@ -45,13 +45,13 @@ class ApplicationController < ActionController::Base
   def find_session_record
     # Try cookie-based authentication first
     if cookies.signed[:session_token].present?
-      return Session.find_by_id(cookies.signed[:session_token])
+      return Session.find_by(id: cookies.signed[:session_token])
     end
 
     # Try Authorization header authentication
     if request.headers['Authorization'].present?
       token = request.headers['Authorization'].gsub(/Bearer +/, '')
-      return Session.find_by_id(token)
+      return Session.find_by(id: token)
     end
 
     nil

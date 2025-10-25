@@ -1,13 +1,32 @@
 class AdminOplog < ApplicationRecord
+  attribute :administrator_id, :integer
+  attribute :action, :string
+  attribute :resource_type, :string
+  attribute :resource_id, :integer
+  attribute :ip_address, :string
+  attribute :user_agent, :string
+  attribute :details, :string
+  
   belongs_to :administrator
 
   validates :action, presence: true
   validates :ip_address, presence: true
 
-  scope :recent, -> { order(created_at: :desc) }
-  scope :by_action, ->(action) { where(action: action) }
-  scope :by_administrator, ->(admin_id) { where(administrator_id: admin_id) }
-  scope :by_resource, ->(type, id) { where(resource_type: type, resource_id: id) }
+  def self.recent
+    all.sort_by { |log| log.created_at }.reverse
+  end
+  
+  def self.by_action(action)
+    where(action: action)
+  end
+  
+  def self.by_administrator(admin_id)
+    where(administrator_id: admin_id)
+  end
+  
+  def self.by_resource(type, id)
+    where(resource_type: type, resource_id: id)
+  end
 
   # Human readable action names
   ACTION_LABELS = {

@@ -12,7 +12,7 @@ class Api::TelegramAuthsController < ApplicationController
       user = result[:user]
       
       # Create session for the user
-      session = user.sessions.create!
+      session = Session.create!(user_id: user.id)
       cookies.signed.permanent[:session_token] = { value: session.id, httponly: true }
       
       render json: { 

@@ -32,7 +32,7 @@ class ChatResponseJob < ApplicationJob
     user_message = Message.find(user_message_id)
     
     # Get conversation history (last 20 messages for context)
-    messages = chat.messages.ordered.last(20)
+    messages = chat.messages.sort_by { |m| [m.created_at, m.id] }.last(20)
     conversation_history = messages.map { |msg| "#{msg.role}: #{msg.content}" }.join("\n")
     
     # Process attached files
@@ -77,7 +77,8 @@ class ChatResponseJob < ApplicationJob
     PROMPT
     
     # Create AI response message
-    ai_message = chat.messages.create!(
+    ai_message = Message.create!(
+      chat_id: chat.id,
       role: 'assistant',
       content: '',  # Will be filled by streaming
     )
@@ -161,24 +162,26 @@ class ChatResponseJob < ApplicationJob
     images = []
     text_parts = []
     
-    message.files.each do |file|
-      if file.content_type.start_with?('image/')
+    message.files.each do |blob|
+      if blob['content_type'].to_s.start_with?('image/')
         # For images, convert to base64 data URL for vision models
         begin
-          image_data = file.download
+          file_path = Rails.root.join('storage', blob['key'])
+          image_data = File.read(file_path)
           base64_image = Base64.strict_encode64(image_data)
-          data_url = "data:#{file.content_type};base64,#{base64_image}"
+          data_url = "data:#{blob['content_type']};base64,#{base64_image}"
           images << data_url
         rescue => e
-          Rails.logger.error("Failed to process image #{file.filename}: #{e.message}")
+          Rails.logger.error("Failed to process image #{blob['filename']}: #{e.message}")
         end
-      elsif file.content_type.start_with?('text/') || file.content_type == 'application/json'
+      elsif blob['content_type'].to_s.start_with?('text/') || blob['content_type'] == 'application/json'
         # For text files, read and include content
         begin
-          text_content = file.download.force_encoding('UTF-8')
-          text_parts << "\n\nПРИКРЕПЛЕННЫЙ ФАЙЛ: #{file.filename}\n```\n#{text_content}\n```\n"
+          file_path = Rails.root.join('storage', blob['key'])
+          text_content = File.read(file_path).force_encoding('UTF-8')
+          text_parts << "\n\nПРИКРЕПЛЕННЫЙ ФАЙЛ: #{blob['filename']}\n```\n#{text_content}\n```\n"
         rescue => e
-          Rails.logger.error("Failed to process text file #{file.filename}: #{e.message}")
+          Rails.logger.error("Failed to process text file #{blob['filename']}: #{e.message}")
         end
       end
     end

@@ -20,8 +20,6 @@
     <%= action_cable_meta_tag %>
     <%= content_for?(:head) ? yield(:head) : '' %>
     <%= stylesheet_link_tag 'application', media: 'all' %>
-    <!-- Load error handler early to catch all errors -->
-    <%= javascript_include_tag 'error_handler' if Rails.env.development? %>
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <%= javascript_include_tag 'application', type: "module" %>

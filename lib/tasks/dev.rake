@@ -6,7 +6,7 @@ if Rails.env.development? || Rails.env.test?
 
       # Find existing user (skip password check in dev environment)
       if user = User.find_by(email: email)
-        session = user.sessions.create!
+        session = Session.create!(user_id: user.id)
         STDERR.puts "Token: #{session.id} (reused user: #{user.email})"
         STDERR.puts "curl -H 'Authorization: Bearer #{session.id}' http://localhost:3000/endpoint"
         puts session.id
@@ -22,7 +22,7 @@ if Rails.env.development? || Rails.env.test?
       )
 
       if user.save
-        session = user.sessions.create!
+        session = Session.create!(user_id: user.id)
         STDERR.puts "Token: #{session.id} (created new user: #{user.email})"
         STDERR.puts "curl -H 'Authorization: Bearer #{session.id}' http://localhost:3000/endpoint"
         puts session.id

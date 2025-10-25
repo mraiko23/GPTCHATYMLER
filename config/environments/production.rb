@@ -30,8 +30,8 @@ Rails.application.configure do
   # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for Apache
   # config.action_dispatch.x_sendfile_header = "X-Accel-Redirect" # for NGINX
 
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  # Store uploaded files on the local file system (JSON storage)
+  # config.active_storage.service = :local  # Not using ActiveStorage
 
   # Mount Action Cable outside main process or domain.
   config.action_cable.disable_request_forgery_protection = true
@@ -85,11 +85,11 @@ Rails.application.configure do
   # config.active_job.queue_name_prefix = "myapp_production"
 
   # Configure GoodJob for production
-  config.good_job.execution_mode = :async
-  config.good_job.max_threads = 4
-  config.good_job.poll_interval = 10
-  config.good_job.shutdown_timeout = 25
-  config.good_job.enable_cron = true
+  # config.good_job.execution_mode = :async  # Not using GoodJob
+  # config.good_job.max_threads = 4
+  # config.good_job.poll_interval = 10
+  # config.good_job.shutdown_timeout = 25
+  # config.good_job.enable_cron = true
 
   # Disable caching for Action Mailer templates even if Action Controller
   # caching is enabled.
@@ -107,10 +107,10 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
 
   # Do not dump schema after migrations.
-  config.active_record.dump_schema_after_migration = false
+  # config.active_record.dump_schema_after_migration = false  # Not using ActiveRecord
 
   # Only use :id for inspections in production.
-  config.active_record.attributes_for_inspect = [ :id ]
+  # config.active_record.attributes_for_inspect = [ :id ]  # Not using ActiveRecord
 
   # Suppress source map warnings for node_modules packages
   config.assets.quiet = true

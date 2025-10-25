@@ -4,20 +4,40 @@ class MessagesController < ApplicationController
   before_action :set_message, only: [:update, :regenerate]
 
   def create
-    @message = @chat.messages.build(message_params)
-    @message.role = 'user'
+    # Separate files from other params
+    files_param = message_params[:files]
+    params_hash = message_params.to_h.except('files')
     
+    # Validate that either content or files are present
+    if params_hash[:content].blank? && (files_param.blank? || files_param.reject(&:blank?).empty?)
+      @messages = @chat.messages.sort_by { |m| [m.created_at, m.id] }
+      @new_message = Message.new(params_hash.merge(chat_id: @chat.id, role: 'user'))
+      @new_message.errors.add(:base, 'Message must have either text content or attached files')
+      render 'chats/show', status: :unprocessable_entity
+      return
+    end
+    
+    @message = Message.new(params_hash.merge(chat_id: @chat.id, role: 'user'))
+    
+    # Save message first to get ID
     if @message.save
+      # Attach files AFTER save so message has ID
+      if files_param.present?
+        files_param.each do |file|
+          @message.files.attach(file) if file.present?
+        end
+      end
+      
       # Trigger AI response via ActionCable
       ChatResponseJob.perform_later(@chat.id, @message.id)
       
       # Update chat's updated_at to show it as recent
-      @chat.touch
+      @chat.update(updated_at: Time.current)
       
       # Rails will automatically render create.turbo_stream.erb
       # This prevents page reload and maintains WebSocket connection
     else
-      @messages = @chat.messages.ordered.includes(:chat)
+      @messages = @chat.messages.sort_by { |m| [m.created_at, m.id] }
       @new_message = @message
       render 'chats/show', status: :unprocessable_entity
     end
@@ -30,12 +50,23 @@ class MessagesController < ApplicationController
       return
     end
 
-    if @message.update(message_params)
+    # Separate files from other params
+    files_param = message_params[:files]
+    params_hash = message_params.to_h.except('files')
+    
+    if @message.update(params_hash)
+      # Attach new files AFTER update
+      if files_param.present?
+        files_param.each do |file|
+          @message.files.attach(file) if file.present?
+        end
+      end
+      
       # Regenerate AI response after user message update
       ChatResponseJob.perform_later(@chat.id, @message.id)
       
       # Update chat's updated_at
-      @chat.touch
+      @chat.update(updated_at: Time.current)
       
       redirect_to @chat, notice: 'Сообщение обновлено'
     else
@@ -54,26 +85,24 @@ class MessagesController < ApplicationController
     message_created_at = @message.created_at
 
     # Find the user message that prompted this response
-    user_message = @chat.messages
-                       .where(role: 'user')
-                       .where('created_at <= ?', message_created_at)
-                       .order(created_at: :desc)
-                       .first
+    user_messages = @chat.messages.select { |m| m.role == 'user' && m.created_at <= message_created_at }
+    user_message = user_messages.sort_by { |m| [m.created_at, m.id] }.last
 
     if user_message
+      # Save user message ID before any deletions
+      user_message_id = user_message.id
+      
       # Get IDs of messages to delete for Turbo Stream
-      @deleted_message_ids = @chat.messages
-                                  .where('created_at >= ?', message_created_at)
-                                  .pluck(:id)
+      @deleted_message_ids = @chat.messages.select { |m| m.created_at >= message_created_at }.map(&:id)
       
       # Delete the current assistant message and any messages after it
-      @chat.messages.where('created_at >= ?', message_created_at).destroy_all
+      @chat.messages.select { |m| m.created_at >= message_created_at }.each(&:destroy)
       
-      # Regenerate response
-      ChatResponseJob.perform_later(@chat.id, user_message.id)
+      # Regenerate response using saved ID
+      ChatResponseJob.perform_later(@chat.id, user_message_id)
       
       # Update chat's updated_at
-      @chat.touch
+      @chat.update(updated_at: Time.current)
       
       # Rails will automatically render regenerate.turbo_stream.erb
     else
@@ -84,11 +113,13 @@ class MessagesController < ApplicationController
   private
   
   def set_chat
-    @chat = current_user.chats.find(params[:chat_id])
+    @chat = current_user.chats.find { |c| c.id == params[:chat_id].to_i }
+    raise ActiveRecord::RecordNotFound unless @chat
   end
 
   def set_message
-    @message = @chat.messages.find(params[:id])
+    @message = @chat.messages.find { |m| m.id == params[:id].to_i }
+    raise ActiveRecord::RecordNotFound unless @message
   end
   
   def message_params

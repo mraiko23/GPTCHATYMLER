@@ -37,17 +37,18 @@ class Admin::SessionsController < Admin::BaseController
     admin = Administrator.find_by(name: 'admin')
     if admin.nil?
       logger.info("System have no admins, create the first one")
-      admin = Administrator.new(name: 'admin', password: 'admin', role: 'super_admin')
-      admin.save!(validate: false)
+      admin = Administrator.new(name: 'admin', password: 'admin123', password_confirmation: 'admin123', role: 'super_admin')
+      admin.save!
     else
-      admin.update!(password: 'admin', password_confirmation: 'admin')
+      admin.update!(password: 'admin123', password_confirmation: 'admin123')
     end
   end
 
   def first_admin?
-    return true unless Administrator.first
+    return true if Administrator.count == 0
     admin = Administrator.find_by(name: 'admin')
     return true if admin.nil?
     return true if admin.first_login
+    false
   end
 end

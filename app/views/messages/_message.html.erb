@@ -7,12 +7,12 @@
     <% if message.files.attached? %>
       <div class="mb-3 space-y-2">
         <% message.files.each do |file| %>
-          <% if file.content_type.start_with?('image/') %>
+          <% if file['content_type'].to_s.start_with?('image/') %>
             <!-- Изображение -->
             <div class="rounded-lg overflow-hidden">
-              <%= image_tag file, class: "max-w-full h-auto rounded-lg", style: "max-height: 300px;" %>
+              <%= image_tag "/storage/#{file['key']}", alt: file['filename'], class: "max-w-full h-auto rounded-lg", style: "max-height: 300px;" %>
             </div>
-          <% elsif file.content_type.start_with?('text/') || ['application/pdf', 'application/json'].include?(file.content_type) %>
+          <% elsif file['content_type'].to_s.start_with?('text/') || ['application/pdf', 'application/json'].include?(file['content_type']) %>
             <!-- Текстовый файл или документ -->
             <div class="flex items-center space-x-2 p-2 <%= message.role == 'user' ? 'bg-white/10' : 'bg-surface' %> rounded-lg">
               <div class="flex-shrink-0">
@@ -22,15 +22,15 @@
               </div>
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium <%= message.role == 'user' ? 'text-white' : 'text-text-primary' %> truncate">
-                  <%= file.filename %>
+                  <%= file['filename'] %>
                 </p>
                 <p class="text-xs <%= message.role == 'user' ? 'text-white/60' : 'text-text-muted' %>">
-                  <%= number_to_human_size(file.byte_size) %>
+                  <%= number_to_human_size(file['byte_size']) %>
                 </p>
               </div>
-              <%= link_to rails_blob_path(file, disposition: "attachment"), 
+              <%= link_to "/storage/#{file['key']}", 
                     class: "flex-shrink-0 #{message.role == 'user' ? 'text-white/70 hover:text-white' : 'text-text-secondary hover:text-text-primary'} transition-colors",
-                    download: file.filename do %>
+                    download: file['filename'] do %>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                 </svg>
@@ -38,9 +38,9 @@
             </div>
             
             <!-- Превью текста для .txt файлов -->
-            <% if file.content_type == 'text/plain' && file.byte_size < 10000 %>
+            <% if file['content_type'] == 'text/plain' && file['byte_size'].to_i < 10000 %>
               <div class="mt-2 p-3 <%= message.role == 'user' ? 'bg-white/5' : 'bg-surface' %> rounded-lg">
-                <pre class="text-xs <%= message.role == 'user' ? 'text-white/80' : 'text-text-secondary' %> whitespace-pre-wrap overflow-x-auto"><%= truncate(file.download, length: 500) %></pre>
+                <pre class="text-xs <%= message.role == 'user' ? 'text-white/80' : 'text-text-secondary' %> whitespace-pre-wrap overflow-x-auto"><%= truncate(File.read(Rails.root.join('storage', file['key'])), length: 500) rescue 'Unable to preview file' %></pre>
               </div>
             <% end %>
           <% else %>
@@ -53,15 +53,15 @@
               </div>
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium <%= message.role == 'user' ? 'text-white' : 'text-text-primary' %> truncate">
-                  <%= file.filename %>
+                  <%= file['filename'] %>
                 </p>
                 <p class="text-xs <%= message.role == 'user' ? 'text-white/60' : 'text-text-muted' %>">
-                  <%= number_to_human_size(file.byte_size) %>
+                  <%= number_to_human_size(file['byte_size']) %>
                 </p>
               </div>
-              <%= link_to rails_blob_path(file, disposition: "attachment"), 
+              <%= link_to "/storage/#{file['key']}", 
                     class: "flex-shrink-0 #{message.role == 'user' ? 'text-white/70 hover:text-white' : 'text-text-secondary hover:text-text-primary'} transition-colors",
-                    download: file.filename do %>
+                    download: file['filename'] do %>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                 </svg>

@@ -1,9 +1,20 @@
 require_relative "boot"
-require "rails/all"
+# Load individual Rails components, excluding ActiveRecord
+require "rails"
+require "active_model/railtie"
+require "active_job/railtie"
+require "action_controller/railtie"
+require "action_mailer/railtie"
+require "action_view/railtie"
+require "action_cable/engine"
+require "rails/test_unit/railtie"
+# require "sprockets/railtie"  # Not needed
 
 Bundler.require(*Rails.groups)
 require_relative '../lib/middleware/clacky_health_check'
 require_relative '../lib/env_checker'
+require_relative '../lib/json_database'
+require_relative '../lib/json_model'
 
 module Myapp
   class Application < Rails::Application
@@ -44,17 +55,15 @@ module Myapp
     # Application name configuration
     config.x.appname = "Telegram AI Chat"
 
-    # Configure GoodJob as the Active Job queue adapter
-    config.active_job.queue_adapter = :good_job
+    # Initialize JSON Database
+    config.after_initialize do
+      JsonDatabase.initialize!
+    end
+    
+    # Configure Active Job queue adapter to use inline (since we're not using ActiveJob with DB)
+    config.active_job.queue_adapter = :inline
 
     # Use custom MailDeliveryJob that inherits from ApplicationJob
     config.action_mailer.delivery_job = "MailDeliveryJob"
-
-    # Enable cron-style recurring jobs
-    config.good_job.enable_cron = true
-
-    # Load cron configuration from recurring.yml
-    cron_config = Rails.application.config_for(:recurring)
-    config.good_job.cron = cron_config if cron_config.present?
   end
 end

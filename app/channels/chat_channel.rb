@@ -3,12 +3,11 @@ class ChatChannel < ApplicationCable::Channel
     chat_id = params[:chat_id]
     
     # Verify user has access to this chat
-    chat = current_user.chats.find(chat_id)
+    chat = Chat.find(chat_id)
+    reject unless chat && chat.user_id == current_user.id
     
     # Stream from the specific chat channel
     stream_from "chat_#{chat_id}"
-  rescue ActiveRecord::RecordNotFound
-    reject
   rescue StandardError => e
     handle_channel_error(e)
     reject
@@ -23,10 +22,12 @@ class ChatChannel < ApplicationCable::Channel
   # Handle sending user messages and triggering AI responses
   def send_message(data)
     chat_id = params[:chat_id]
-    chat = current_user.chats.find(chat_id)
+    chat = Chat.find(chat_id)
+    return unless chat && chat.user_id == current_user.id
     
     # Create user message
-    user_message = chat.messages.create!(
+    user_message = Message.create!(
+      chat_id: chat.id,
       role: 'user',
       content: data['content'] || ''
     )
@@ -55,8 +56,6 @@ class ChatChannel < ApplicationCable::Channel
     
     # Start AI response job
     ChatResponseJob.perform_later(chat_id, user_message.id)
-  rescue ActiveRecord::RecordNotFound
-    # Chat not found or user doesn't have access
   rescue StandardError => e
     handle_channel_error(e)
   end

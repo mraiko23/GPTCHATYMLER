@@ -32,7 +32,7 @@ Rails.application.configure do
   config.action_controller.allow_forgery_protection = false
 
   # Store uploaded files on the local file system in a temporary directory.
-  config.active_storage.service = :test
+  # config.active_storage.service = :test  # Not using ActiveStorage
 
   # Disable caching for Action Mailer templates even if Action Controller
   # caching is enabled.
@@ -66,5 +66,5 @@ Rails.application.configure do
   config.action_controller.raise_on_missing_callback_actions = true
 
   # Configure GoodJob for test environment
-  config.good_job.execution_mode = :inline
+  # config.good_job.execution_mode = :inline  # Not using GoodJob
 end

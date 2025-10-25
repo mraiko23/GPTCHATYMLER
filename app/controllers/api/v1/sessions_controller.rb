@@ -2,7 +2,7 @@ class Api::V1::SessionsController < ApplicationController
   # API login endpoint specifically for curl/API usage
   def login
     if user = User.authenticate_by(email: params[:email], password: params[:password])
-      @session = user.sessions.create!
+      @session = Session.create!(user_id: user.id)
       
       render json: {
         user: {

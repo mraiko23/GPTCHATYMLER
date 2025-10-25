@@ -1,19 +1,28 @@
 class Chat < ApplicationRecord
+  attribute :user_id, :integer
+  attribute :title, :string
+  
   belongs_to :user
   has_many :messages, dependent: :destroy
   
   validates :title, presence: true
   
-  scope :recent, -> { order(updated_at: :desc) }
+  before_validation :set_default_title, if: -> { new_record? }
   
-  before_validation :set_default_title, on: :create
+  def self.recent
+    all.sort_by { |c| c.updated_at || c.created_at }.reverse
+  end
   
   def last_message
-    messages.ordered.last
+    messages.sort_by { |m| [m.created_at, m.id] }.last
   end
   
   def message_count
     messages.count
+  end
+  
+  def messages
+    Message.where(chat_id: id).sort_by { |m| [m.created_at, m.id] }
   end
   
   private

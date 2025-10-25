@@ -31,8 +31,8 @@ Rails.application.configure do
   config.cache_store = :memory_store
   config.public_file_server.headers = { "Cache-Control" => "public, max-age=#{2.days.to_i}" }
 
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  # Store uploaded files on the local file system (JSON storage)
+  # config.active_storage.service = :local  # Not using ActiveStorage
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = true
@@ -66,16 +66,16 @@ Rails.application.configure do
   config.active_support.disallowed_deprecation_warnings = []
 
   # Clacky: customize pages at concerns
-  config.active_record.migration_error = false
+  # config.active_record.migration_error = false  # Not using ActiveRecord
 
   # Highlight code that triggered database queries in logs.
-  config.active_record.verbose_query_logs = true
+  # config.active_record.verbose_query_logs = true  # Not using ActiveRecord
 
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
 
   # Configure GoodJob for development
-  config.good_job.execution_mode = :async
+  # config.good_job.execution_mode = :async  # Not using GoodJob with JSON storage
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true

@@ -5,7 +5,7 @@ class Sessions::OmniauthController < ApplicationController
     @user = User.from_omniauth(omniauth)
 
     if @user.persisted?
-      session_record = @user.sessions.create!
+      session_record = Session.create!(user_id: @user.id)
       cookies.signed.permanent[:session_token] = { value: session_record.id, httponly: true }
 
       redirect_to root_path, notice: "Successfully signed in with #{omniauth.provider.humanize}"

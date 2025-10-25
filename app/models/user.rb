@@ -4,31 +4,36 @@ class User < ApplicationRecord
   MIN_PASSWORD = 4
   GENERATED_EMAIL_SUFFIX = "@generated-mail.clacky.ai"
 
-  has_secure_password validations: false
+  # Attributes
+  attribute :name, :string
+  attribute :email, :string
+  attribute :password_digest, :string
+  attribute :verified, :boolean, default: false
+  attribute :provider, :string
+  attribute :uid, :string
+  attribute :telegram_id, :integer
+  attribute :username, :string
+  attribute :first_name, :string
+  attribute :last_name, :string
+  attribute :photo_url, :string
+  
+  attr_accessor :password, :password_confirmation
 
-  generates_token_for :email_verification, expires_in: 2.days do
-    email
-  end
-  generates_token_for :password_reset, expires_in: 20.minutes
-
+  # Associations
   has_many :sessions, dependent: :destroy
   has_many :chats, dependent: :destroy
-  has_many :messages, through: :chats
 
-  validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-
+  # Validations
+  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validate :email_uniqueness
   validates :password, allow_nil: true, length: { minimum: MIN_PASSWORD }, if: :password_required?
   validates :password, confirmation: true, if: :password_required?
-
-  normalizes :email, with: -> { _1.strip.downcase }
-
-  before_validation if: :email_changed?, on: :update do
-    self.verified = false
-  end
-
-  after_update if: :password_digest_previously_changed? do
-    sessions.where.not(id: Current.session).delete_all
-  end
+  
+  # Callbacks
+  before_validation :normalize_email
+  before_validation :set_verified_false_if_email_changed, if: -> { !new_record? }
+  before_save :encrypt_password, if: -> { password.present? }
+  after_save :delete_other_sessions_if_password_changed, if: -> { !new_record? }
 
   # Telegram authentication methods
   def self.from_telegram(telegram_data)
@@ -134,12 +139,72 @@ class User < ApplicationRecord
   def avatar_url
     photo_url.presence || "https://ui-avatars.com/api/?name=#{CGI.escape(display_name)}&background=0088cc&color=fff"
   end
+  
+  def verified?
+    verified == true
+  end
+  
+  # Password authentication
+  def authenticate(password)
+    return false unless password_digest.present?
+    BCrypt::Password.new(password_digest).is_password?(password) ? self : false
+  end
+  
+  # Token generation (simplified)
+  def self.generate_token_for(purpose)
+    # This is simplified - just return a random token
+    SecureRandom.urlsafe_base64(32)
+  end
+  
+  def generates_token_for(purpose, expires_in: nil, &block)
+    SecureRandom.urlsafe_base64(32)
+  end
 
   private
+  
+  def email_uniqueness
+    existing = User.find_by(email: email)
+    if existing && existing.id != id
+      errors.add(:email, 'has already been taken')
+    end
+  end
 
   def password_required?
     return false if oauth_user?
     password_digest.blank? || password.present?
   end
-
+  
+  def normalize_email
+    self.email = email.strip.downcase if email.present?
+  end
+  
+  def set_verified_false_if_email_changed
+    if email_changed?
+      self.verified = false
+    end
+  end
+  
+  def email_changed?
+    # Simple implementation - check if email is different from stored value
+    return false if new_record?
+    
+    stored = self.class.find_by(id: id)
+    stored && stored.email != email
+  end
+  
+  def delete_other_sessions_if_password_changed
+    # Check if password_digest changed
+    stored = self.class.find_by(id: id)
+    if stored && stored.password_digest != password_digest
+      # Delete all sessions except current
+      sessions.each do |session|
+        session.destroy unless session.id == Current.session&.id
+      end
+    end
+  end
+  
+  def encrypt_password
+    require 'bcrypt'
+    self.password_digest = BCrypt::Password.create(password)
+  end
 end

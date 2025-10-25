@@ -62,6 +62,10 @@ Rails.application.routes.draw do
     #   delete 'logout', to: 'sessions#destroy'
     # end
   end
+  
+  # File storage routes
+  get '/storage/:key', to: 'storage#show', as: :storage_file
+  get '/rails/active_storage/blobs/:key/*filename', to: 'blobs#show', as: :rails_storage_blob
 
   # Authentication routes generated end
 

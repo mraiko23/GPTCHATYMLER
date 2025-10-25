@@ -7,7 +7,7 @@ class SessionsController < ApplicationController
   end
 
   def devices
-    @sessions = current_user.sessions.order(created_at: :desc)
+    @sessions = Session.where(user_id: current_user.id).sort_by(&:created_at).reverse
   end
 
   def new
@@ -16,7 +16,7 @@ class SessionsController < ApplicationController
 
   def create
     if user = User.authenticate_by(email: params[:user][:email], password: params[:user][:password])
-      @session = user.sessions.create!
+      @session = Session.create!(user_id: user.id)
       cookies.signed.permanent[:session_token] = { value: @session.id, httponly: true }
       redirect_to root_path, notice: "Signed in successfully"
     else
@@ -27,14 +27,16 @@ class SessionsController < ApplicationController
 
   def destroy
     @session = Current.session
-    @session.destroy!
+    @session.destroy if @session
     cookies.delete(:session_token)
-    redirect_to(sign_in_path, notice: "That session has been logged out")
+    redirect_to root_path, notice: "Signed out successfully"
   end
 
   def destroy_one
-    @session = current_user.sessions.find(params[:id])
-    @session.destroy!
+    @session = Session.find_by(id: params[:id])
+    return redirect_to(devices_session_path, alert: "Session not found") unless @session
+    return redirect_to(devices_session_path, alert: "Unauthorized") unless @session.user_id == current_user.id
+    @session.destroy
     redirect_to(devices_session_path, notice: "That session has been logged out")
   end
 end
