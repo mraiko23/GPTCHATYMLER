@@ -60,3 +60,4 @@ yarn-debug.log*
 /.breakpoints
 /*rules
 /!.clackyrules
+RENDER_SECRETS.txt
